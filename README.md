@@ -72,7 +72,7 @@ Simple Lock example
 ```yaml
 type: restriction
 card:
-  type: thermostat
+  type: custom:hui-thermostat-card
   entity: climate.house
 ```
 
@@ -99,7 +99,7 @@ restrictions:
 exemptions:
   - user: ianid
 card:
-  type: thermostat
+  type: custom:hui-thermostat-card
   entity: climate.house
 ```
 
