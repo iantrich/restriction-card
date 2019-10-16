@@ -32,11 +32,12 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 
 ## Restrictions Options
 
-| Name    | Type   | Requirement  | Description                          |
-| ------- | ------ | ------------ | ------------------------------------ |
-| confirm | object | **Optional** | Confirmation restriction. See below. |
-| pin     | object | **Optional** | Pin restriction. See below.          |
-| block   | object | **Optional** | Block restriction. See below.        |
+| Name    | Type   | Requirement  | Description                                 |
+| ------- | ------ | ------------ | ------------------------------------------- |
+| confirm | object | **Optional** | Confirmation unlock restriction. See below. |
+| pin     | object | **Optional** | Pin code restriction. See below.            |
+| block   | object | **Optional** | Block interaction restriction. See below.   |
+| hide    | object | **Optional** | Hide card restriction. See below.           |
 
 ## Confirm Options
 
@@ -52,6 +53,12 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 | exemptions | list   | **Optional** | List of exemption objects. See exemption object below. |
 
 ## Block Options
+
+| Name       | Type | Requirement  | Description                                            |
+| ---------- | ---- | ------------ | ------------------------------------------------------ |
+| exemptions | list | **Optional** | List of exemption objects. See exemption object below. |
+
+## Hide Options
 
 | Name       | Type | Requirement  | Description                                            |
 | ---------- | ---- | ------------ | ------------------------------------------------------ |

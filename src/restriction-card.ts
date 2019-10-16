@@ -16,8 +16,8 @@ import {
   LovelaceCardConfig
 } from "custom-card-helpers";
 
-@customElement("hui-restriction-card")
-class HuiRestrictionCard extends LitElement implements LovelaceCard {
+@customElement("restriction-card")
+class RestrictionCard extends LitElement implements LovelaceCard {
   @property() protected _config?: RestrictionCardConfig;
   protected _hass?: HomeAssistant;
 
@@ -60,6 +60,17 @@ class HuiRestrictionCard extends LitElement implements LovelaceCard {
       return html``;
     }
 
+    if (
+      this._config.restrictions &&
+      this._config.restrictions.hide &&
+      (!this._config.restrictions.hide.exemptions ||
+        !this._config.restrictions.hide.exemptions.some(
+          e => e.user === this._hass!.user!.id
+        ))
+    ) {
+      return html``;
+    }
+
     return html`
       <div>
         ${this._config.exemptions &&
@@ -67,7 +78,7 @@ class HuiRestrictionCard extends LitElement implements LovelaceCard {
           ? ""
           : html`
               <div @click=${this._handleClick} id="overlay">
-                <ha-icon icon="hass:lock-outline" id="lock"></ha-icon>
+                <ha-icon icon="mdi:lock-outline" id="lock"></ha-icon>
               </div>
             `}
         ${this.renderCard(this._config.card!)}
@@ -201,6 +212,6 @@ class HuiRestrictionCard extends LitElement implements LovelaceCard {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-restriction-card": HuiRestrictionCard;
+    "restriction-card": RestrictionCard;
   }
 }

@@ -2,30 +2,35 @@ import { ActionConfig, LovelaceCardConfig } from "custom-card-helpers";
 
 export interface RestrictionCardConfig extends LovelaceCardConfig {
   restrictions?: RestrictionsConfig;
-  exemptions?: RestrictionTypeConfig[];
+  exemptions?: ExemptionConfig[];
   card?: LovelaceCardConfig;
 }
 
 export interface RestrictionsConfig {
-  confirm?: ConfirmRestrictionTypeConfig;
+  confirm?: ConfirmRestrictionConfig;
   pin?: PinRestrictionConfig;
-  block?: BlockTypeConfig;
+  block?: BlockRestrictionConfig;
+  hide?: HideRestrictionConfig;
 }
 
-export interface ConfirmRestrictionTypeConfig {
-  exemptions?: RestrictionTypeConfig[];
+export interface ConfirmRestrictionConfig {
+  exemptions?: ExemptionConfig[];
 }
 
-export interface BlockTypeConfig {
-  exemptions?: RestrictionTypeConfig[];
+export interface BlockRestrictionConfig {
+  exemptions?: ExemptionConfig[];
+}
+
+export interface HideRestrictionConfig {
+  exemptions?: ExemptionConfig[];
 }
 
 export interface PinRestrictionConfig {
   code: string;
-  exemptions?: RestrictionTypeConfig[];
+  exemptions?: ExemptionConfig[];
 }
 
-export interface RestrictionTypeConfig {
+export interface ExemptionConfig {
   user: string;
 }
 
