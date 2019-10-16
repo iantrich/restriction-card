@@ -77,7 +77,7 @@ Simple Lock example
 ![lock](lock.gif)
 
 ```yaml
-type: restriction
+type: custom:restriction-card
 card:
   type: custom:hui-thermostat-card
   entity: climate.house
@@ -88,7 +88,7 @@ More complex example
 ![complex](pin.gif)
 
 ```yaml
-type: restriction
+type: custom:restriction-card
 restrictions:
   confirm:
     exemptions:
