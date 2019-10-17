@@ -141,6 +141,23 @@ card:
   entity: climate.house
 ```
 
+Row example
+
+![row](row.png)
+
+```yaml
+type: 'custom:hui-entities-card'
+entities:
+  - card:
+      entity: cover.garage_door
+      type: 'custom:hui-cover-entity-row'
+    restrictions:
+      block: true
+    type: 'custom:restriction-card'
+    row: true
+  - entity: light.kitchen
+```
+
 ## Installation
 
 This card is available in the [HACS (Home Assistant Community Store)](https://hacs.netlify.com)
