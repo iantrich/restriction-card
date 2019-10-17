@@ -7,6 +7,8 @@ import {
   CSSResult,
   css
 } from "lit-element";
+import { classMap } from "lit-html/directives/class-map";
+
 import { RestrictionCardConfig } from "./types";
 import {
   HomeAssistant,
@@ -71,13 +73,38 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       return html``;
     }
 
+    console.log(
+      "blocked: " +
+        Boolean(
+          this._config.restrictions &&
+            this._config.restrictions.block &&
+            (!this._config.restrictions.block.exemptions ||
+              !this._config.restrictions.block.exemptions.some(
+                e => e.user === this._hass!.user!.id
+              ))
+        )
+    );
+
     return html`
       <div>
         ${this._config.exemptions &&
         this._config.exemptions.some(e => e.user === this._hass!.user!.id)
           ? ""
           : html`
-              <div @click=${this._handleClick} id="overlay">
+              <div
+                @click=${this._handleClick}
+                id="overlay"
+                class="${classMap({
+                  blocked: Boolean(
+                    this._config.restrictions &&
+                      this._config.restrictions.block &&
+                      (!this._config.restrictions.block.exemptions ||
+                        !this._config.restrictions.block.exemptions.some(
+                          e => e.user === this._hass!.user!.id
+                        ))
+                  )
+                })}"
+              >
                 <ha-icon icon="mdi:lock-outline" id="lock"></ha-icon>
               </div>
             `}
@@ -131,7 +158,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
             e => e.user === this._hass!.user!.id
           ))
       ) {
-        const pin = prompt(this._config!.restrictions.pin.text || "Input pin code");
+        const pin = prompt(
+          this._config!.restrictions.pin.text || "Input pin code"
+        );
 
         // tslint:disable-next-line: triple-equals
         if (pin != this._config!.restrictions.pin.code) {
@@ -152,7 +181,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
             e => e.user === this._hass!.user!.id
           ))
       ) {
-        if (!confirm(this._config!.restrictions.confirm.text || "Are you sure you want to unlock?")) {
+        if (
+          !confirm(
+            this._config!.restrictions.confirm.text ||
+              "Are you sure you want to unlock?"
+          )
+        ) {
           return;
         }
       }
@@ -173,6 +207,22 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     return css`
       :host {
         position: relative;
+        --regular-lock-color: var(
+          --restriction-regular-lock-color,
+          var(--primary-text-color, #212121)
+        );
+        --success-lock-color: var(
+          --restriction-success-lock-color,
+          var(--primary-color, #03a9f4)
+        );
+        --blocked-lock-color: var(
+          --restriction-blocked-lock-color,
+          var(--error-state-color, #db4437)
+        );
+        --invalid-lock-color: var(
+          --restriction-invalid--color,
+          var(--error-state-color, #db4437)
+        );
       }
       #overlay {
         align-items: flex-start;
@@ -185,6 +235,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         bottom: 0;
         z-index: 50;
         display: flex;
+        color: var(--regular-lock-color);
+      }
+      .blocked {
+        color: var(--blocked-lock-color) !important;
       }
       #lock {
         margin: unset;
@@ -199,7 +253,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       .fadeOut {
         animation: fadeOut 5s linear;
-        color: green;
+        color: var(--success-lock-color);
       }
       @keyframes blinker {
         50% {
@@ -208,7 +262,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       .invalid {
         animation: blinker 1s linear infinite;
-        color: red;
+        color: var(--invalid-lock-color);
       }
     `;
   }

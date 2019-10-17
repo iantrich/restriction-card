@@ -73,6 +73,18 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 | ---- | ------ | ------------ | ---------------------------------------------------------- |
 | user | string | **Required** | User id to exempt. This is found in the user profile `ID`. |
 
+## Theme Variables
+
+The following variables are available and can be set in your theme to change the appearance of the lock.
+Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
+
+| name                             | Default              | Description                                   |
+| -------------------------------- | -------------------- | --------------------------------------------- |
+| --restriction-regular-lock-color | --primary-text-color | Lock color                                    |
+| --restriction-success-lock-color | --primary-color      | Lock color when unlocked                      |
+| --restriction-blocked-lock-color | --error-state-color  | Lock color when card is blocked               |
+| --restriction-invalid--color     | --error-state-color  | Lock color after an invalid attempt to unlock |
+
 ## Example Configurations
 
 Simple Lock example
