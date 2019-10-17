@@ -26,46 +26,51 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 | Name         | Type   | Requirement  | Description                                                                                                  |
 | ------------ | ------ | ------------ | ------------------------------------------------------------------------------------------------------------ |
 | type         | string | **Required** | `custom:restriction-card`                                                                                    |
-| card         | object | **Required** | Card to render within `restriction-card`. Note: core cards must be defined as `custom:hui-{card name}-card`. |
-| restrictions | object | **Optional** | Additional restrictions. See restriction types below.                                                        |
+| card         | map    | **Required** | Card to render within `restriction-card`. Note: core cards must be defined as `custom:hui-{card name}-card`. |
+| restrictions | map    | **Optional** | Additional restrictions. See restriction types below.                                                        |
 | exemptions   | list   | **Optional** | List of exemption objects. See exemption object below.                                                       |
+| condition    | map    | **Optional** | Conditional object to make lock active. See condition object below.                                          |
 
 ## Restrictions Options
 
-| Name    | Type   | Requirement  | Description                                 |
-| ------- | ------ | ------------ | ------------------------------------------- |
-| confirm | object | **Optional** | Confirmation unlock restriction. See below. |
-| pin     | object | **Optional** | Pin code restriction. See below.            |
-| block   | object | **Optional** | Block interaction restriction. See below.   |
-| hide    | object | **Optional** | Hide card restriction. See below.           |
+| Name    | Type | Requirement  | Description                                 |
+| ------- | ---- | ------------ | ------------------------------------------- |
+| confirm | map  | **Optional** | Confirmation unlock restriction. See below. |
+| pin     | map  | **Optional** | Pin code restriction. See below.            |
+| block   | map  | **Optional** | Block interaction restriction. See below.   |
+| hide    | map  | **Optional** | Hide card restriction. See below.           |
 
 ## Confirm Options
 
-| Name       | Type   | Requirement  | Description                                            |
-| ---------- | ------ | ------------ | ------------------------------------------------------ |
-| text       | string | **Optional** | Text to display in confirmation dialog                 |
-| exemptions | list   | **Optional** | List of exemption objects. See exemption object below. |
+| Name       | Type   | Requirement  | Description                                                                |
+| ---------- | ------ | ------------ | -------------------------------------------------------------------------- |
+| text       | string | **Optional** | Text to display in confirmation dialog                                     |
+| exemptions | list   | **Optional** | List of exemption objects. See exemption object below.                     |
+| condition  | map    | **Optional** | Conditional object to make restriction active. See condition object below. |
 
 ## Pin Options
 
-| Name       | Type   | Requirement  | Description                                            |
-| ---------- | ------ | ------------ | ------------------------------------------------------ |
-| pin        | string | **Required** | Pin code the user needs to enter to unlock             |
-| text       | string | **Optional** | Text to display in prompt dialog                       |
-| exemptions | list   | **Optional** | List of exemption objects. See exemption object below. |
+| Name       | Type   | Requirement  | Description                                                                |
+| ---------- | ------ | ------------ | -------------------------------------------------------------------------- |
+| pin        | string | **Required** | Pin code the user needs to enter to unlock                                 |
+| text       | string | **Optional** | Text to display in prompt dialog                                           |
+| exemptions | list   | **Optional** | List of exemption objects. See exemption object below.                     |
+| condition  | map    | **Optional** | Conditional object to make restriction active. See condition object below. |
 
 ## Block Options
 
-| Name       | Type   | Requirement  | Description                                            |
-| ---------- | ------ | ------------ | ------------------------------------------------------ |
-| text       | string | **Optional** | Text to display in alert                               |
-| exemptions | list   | **Optional** | List of exemption objects. See exemption object below. |
+| Name       | Type   | Requirement  | Description                                                                |
+| ---------- | ------ | ------------ | -------------------------------------------------------------------------- |
+| text       | string | **Optional** | Text to display in alert                                                   |
+| exemptions | list   | **Optional** | List of exemption objects. See exemption object below.                     |
+| condition  | map    | **Optional** | Conditional object to make restriction active. See condition object below. |
 
 ## Hide Options
 
-| Name       | Type | Requirement  | Description                                            |
-| ---------- | ---- | ------------ | ------------------------------------------------------ |
-| exemptions | list | **Optional** | List of exemption objects. See exemption object below. |
+| Name       | Type | Requirement  | Description                                                                |
+| ---------- | ---- | ------------ | -------------------------------------------------------------------------- |
+| exemptions | list | **Optional** | List of exemption objects. See exemption object below.                     |
+| condition  | map  | **Optional** | Conditional object to make restriction active. See condition object below. |
 
 ## Exemption Options
 

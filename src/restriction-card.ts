@@ -5,7 +5,8 @@ import {
   property,
   html,
   CSSResult,
-  css
+  css,
+  PropertyValues
 } from "lit-element";
 import { classMap } from "lit-html/directives/class-map";
 
@@ -15,13 +16,14 @@ import {
   createThing,
   LovelaceCard,
   computeCardSize,
-  LovelaceCardConfig
+  LovelaceCardConfig,
+  evaluateFilter
 } from "custom-card-helpers";
 
 @customElement("restriction-card")
 class RestrictionCard extends LitElement implements LovelaceCard {
   @property() protected _config?: RestrictionCardConfig;
-  protected _hass?: HomeAssistant;
+  @property() protected _hass?: HomeAssistant;
 
   set hass(hass: HomeAssistant) {
     this._hass = hass;
@@ -57,6 +59,27 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     this._config = config;
   }
 
+  protected shouldUpdate(changedProps: PropertyValues): boolean {
+    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+
+    if (changedProps.has("config") || !oldHass) {
+      return true;
+    }
+
+    if (
+      this._config &&
+      this._config.condition &&
+      this._config.condition.entity
+    ) {
+      return (
+        oldHass.states[this._config.condition.entity] !==
+        this._hass!.states[this._config.condition.entity]
+      );
+    } else {
+      return false;
+    }
+  }
+
   protected render(): TemplateResult | void {
     if (!this._config || !this._hass) {
       return html``;
@@ -64,45 +87,29 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
     if (
       this._config.restrictions &&
-      this._config.restrictions.hide &&
-      (!this._config.restrictions.hide.exemptions ||
-        !this._config.restrictions.hide.exemptions.some(
-          e => e.user === this._hass!.user!.id
-        ))
+      this._matchRestriction(this._config.restrictions.hide)
     ) {
       return html``;
     }
 
-    console.log(
-      "blocked: " +
-        Boolean(
-          this._config.restrictions &&
-            this._config.restrictions.block &&
-            (!this._config.restrictions.block.exemptions ||
-              !this._config.restrictions.block.exemptions.some(
-                e => e.user === this._hass!.user!.id
-              ))
-        )
-    );
-
     return html`
       <div>
-        ${this._config.exemptions &&
-        this._config.exemptions.some(e => e.user === this._hass!.user!.id)
+        ${(this._config.exemptions &&
+          this._config.exemptions.some(e => e.user === this._hass!.user!.id)) ||
+        (this._config.condition &&
+          !evaluateFilter(
+            this._hass.states[this._config.condition.entity],
+            this._config.condition
+          ))
           ? ""
           : html`
               <div
                 @click=${this._handleClick}
                 id="overlay"
                 class="${classMap({
-                  blocked: Boolean(
-                    this._config.restrictions &&
-                      this._config.restrictions.block &&
-                      (!this._config.restrictions.block.exemptions ||
-                        !this._config.restrictions.block.exemptions.some(
-                          e => e.user === this._hass!.user!.id
-                        ))
-                  )
+                  blocked: this._config.restrictions
+                    ? this._matchRestriction(this._config.restrictions.block)
+                    : false
                 })}"
               >
                 <ha-icon icon="mdi:lock-outline" id="lock"></ha-icon>
@@ -126,19 +133,26 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     `;
   }
 
+  private _matchRestriction(restriction): boolean {
+    return (
+      restriction &&
+      (!restriction.exemptions ||
+        !restriction.exemptions.some(e => e.user === this._hass!.user!.id)) &&
+      (!restriction.condition ||
+        evaluateFilter(
+          this._hass!.states[restriction.condition.entity],
+          restriction.condition
+        ))
+    );
+  }
+
   private _handleClick(): void {
     const lock = this.shadowRoot!.getElementById("lock") as LitElement;
 
     if (this._config!.restrictions) {
-      if (
-        this._config!.restrictions.block &&
-        (!this._config!.restrictions.block.exemptions ||
-          !this._config!.restrictions.block.exemptions.some(
-            e => e.user === this._hass!.user!.id
-          ))
-      ) {
-        if (this._config!.restrictions.block.text) {
-          alert(this._config!.restrictions.block.text);
+      if (this._matchRestriction(this._config!.restrictions.block)) {
+        if (this._config!.restrictions!.block!.text) {
+          alert(this._config!.restrictions!.block!.text);
         }
 
         lock.classList.add("invalid");
@@ -150,20 +164,13 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         return;
       }
 
-      if (
-        this._config!.restrictions.pin &&
-        this._config!.restrictions.pin.code &&
-        (!this._config!.restrictions.pin.exemptions ||
-          !this._config!.restrictions.pin.exemptions.some(
-            e => e.user === this._hass!.user!.id
-          ))
-      ) {
+      if (this._matchRestriction(this._config!.restrictions.pin)) {
         const pin = prompt(
-          this._config!.restrictions.pin.text || "Input pin code"
+          this._config!.restrictions!.pin!.text || "Input pin code"
         );
 
         // tslint:disable-next-line: triple-equals
-        if (pin != this._config!.restrictions.pin.code) {
+        if (pin != this._config!.restrictions!.pin!.code) {
           lock.classList.add("invalid");
           window.setTimeout(() => {
             if (lock) {
@@ -174,16 +181,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         }
       }
 
-      if (
-        this._config!.restrictions.confirm &&
-        (!this._config!.restrictions.confirm.exemptions ||
-          !this._config!.restrictions.confirm.exemptions.some(
-            e => e.user === this._hass!.user!.id
-          ))
-      ) {
+      if (this._matchRestriction(this._config!.restrictions.confirm)) {
         if (
           !confirm(
-            this._config!.restrictions.confirm.text ||
+            this._config!.restrictions!.confirm!.text ||
               "Are you sure you want to unlock?"
           )
         ) {

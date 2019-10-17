@@ -474,10 +474,10 @@ cross-spawn@^6.0.5:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
-custom-card-helpers@^1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/custom-card-helpers/-/custom-card-helpers-1.2.3.tgz#cd7204230fe8deb2f72c3f59f29c22a4df8f4067"
-  integrity sha512-x+cWS3yKQspFXaDYPUIR9UK3ksvoZB8ZqHWseHnSrLnYLbBNr0j/iv6s+49NpMtDpktiAaUbVTd6oMZ4+4PzZA==
+custom-card-helpers@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/custom-card-helpers/-/custom-card-helpers-1.2.4.tgz#b95c65ca38596dd072989c8120b2e1b5bf82d931"
+  integrity sha512-mGSsgRcOXsKUl01b6e1pisbAyZUM8o720L9hQo9meAIzBZgLVoB0XA/M/1XxQg/UEoQDsc8YlLpfOQgSwpT9Pg==
   dependencies:
     fecha "^3.0.3"
     home-assistant-js-websocket "^4.1.2"
