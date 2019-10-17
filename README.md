@@ -80,12 +80,12 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 
 ## Condition Options
 
-| Name      | Type   | Requirement  | Description                                                                   |
-| --------- | ------ | ------------ | ----------------------------------------------------------------------------- |
-| value     | string | **Required** | String representing the state.                                                |
-| entity    | string | **Required** | Entity to use condition and is what also causes the card to update            |
-| attribute | string | **Optional** | Attribute of the entity to use instead of the state.                          |
-| operator  | string | **Optional** | Operator to use in the comparison. `==,<=,,<,>=,>,!=,regex`. Default is `==`. |
+| Name      | Type   | Requirement  | Description                                                                                         |
+| --------- | ------ | ------------ | --------------------------------------------------------------------------------------------------- |
+| value     | string | **Required** | String representing the state.                                                                      |
+| entity    | string | **Required** | Entity to use condition and is what also causes the card to update                                  |
+| attribute | string | **Optional** | Attribute of the entity to use instead of the state.                                                |
+| operator  | string | **Optional** | Operator to use in the comparison. Can be `==`,`<=`,`<`,`>=`,`>`,`!=`, or `regex`. Default is `==`. |
 
 ## Theme Variables
 
