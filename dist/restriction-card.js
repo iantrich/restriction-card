@@ -208,7 +208,7 @@ const ht=new WeakMap,ut=(t=>(...s)=>{const n=t(...s);return e.set(n,!0),n})(t=>e
                 <ha-icon
                   icon="mdi:lock-outline"
                   id="lock"
-                  ${this._config.margin?V`style="margin-left: ${this._config.margin} !important;"`:""}
+                  class="${ut({row:Boolean(this._config.row)})}"
                 ></ha-icon>
               </div>
             `}
@@ -258,6 +258,9 @@ const ht=new WeakMap,ut=(t=>(...s)=>{const n=t(...s);return e.set(n,!0),n})(t=>e
       }
       #lock {
         margin-left: var(--lock-margin-left);
+      }
+      .row {
+        margin-left: 24px !important;
       }
       @keyframes fadeOut {
         20% {
