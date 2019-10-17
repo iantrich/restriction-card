@@ -78,6 +78,15 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 | ---- | ------ | ------------ | ---------------------------------------------------------- |
 | user | string | **Required** | User id to exempt. This is found in the user profile `ID`. |
 
+## Condition Options
+
+| Name      | Type   | Requirement  | Description                                                                   |
+| --------- | ------ | ------------ | ----------------------------------------------------------------------------- |
+| value     | string | **Required** | String representing the state.                                                |
+| entity    | string | **Required** | Entity to use condition and is what also causes the card to update            |
+| attribute | string | **Optional** | Attribute of the entity to use instead of the state.                          |
+| operator  | string | **Optional** | Operator to use in the comparison. `==,<=,,<,>=,>,!=,regex`. Default is `==`. |
+
 ## Theme Variables
 
 The following variables are available and can be set in your theme to change the appearance of the lock.
