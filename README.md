@@ -35,7 +35,7 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 
 | Name    | Type | Requirement  | Description                                                               |
 | ------- | ---- | ------------ | ------------------------------------------------------------------------- |
-| confirm | map  | **Optional** | Confirmation unlock restriction. See [confirm Options](#confirm-options). |
+| confirm | map  | **Optional** | Confirmation unlock restriction. See [Confirm Options](#confirm-options). |
 | pin     | map  | **Optional** | Pin code restriction. See [Pin Options](#pin-options).                    |
 | block   | map  | **Optional** | Block interaction restriction. See [Block Options](#block-options).       |
 | hide    | map  | **Optional** | Hide card restriction. See [Hide Options](#hide-options)..                |
