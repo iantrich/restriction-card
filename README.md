@@ -139,7 +139,11 @@ card:
   entity: climate.house
 ```
 
-[Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
+## Installation
+
+This card is available in the [HACS (Home Assistant Community Store)](https://hacs.netlify.com)
+
+## [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
 [commits-shield]: https://img.shields.io/github/commit-activity/y/custom-cards/restriction-card.svg?style=for-the-badge
 [commits]: https://github.com/custom-cards/restriction-card/commits/master
