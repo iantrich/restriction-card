@@ -21,6 +21,16 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 
 [![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://www.buymeacoffee.com/zJtVxUAgH)
 
+## Installation
+
+This card is available in the [HACS (Home Assistant Community Store)](https://hacs.netlify.com)
+
+In your `resources` section add
+```yaml
+  - url: /community_plugin/restriction-card/restriction-card.js
+    type: module
+```
+
 ## Options
 
 | Name         | Type    | Requirement  | Description                                                                                                  |
@@ -157,10 +167,6 @@ entities:
     row: true
   - entity: light.kitchen
 ```
-
-## Installation
-
-This card is available in the [HACS (Home Assistant Community Store)](https://hacs.netlify.com)
 
 ## [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
