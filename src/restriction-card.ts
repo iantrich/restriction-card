@@ -110,6 +110,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
             e => e.user === this._hass!.user!.id
           ))
       ) {
+        if (this._config!.restrictions.block.text) {
+          alert(this._config!.restrictions.block.text);
+        }
+
         lock.classList.add("invalid");
         window.setTimeout(() => {
           if (lock) {
@@ -127,7 +131,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
             e => e.user === this._hass!.user!.id
           ))
       ) {
-        const pin = prompt("Input pin code");
+        const pin = prompt(this._config!.restrictions.pin.text || "Input pin code");
 
         // tslint:disable-next-line: triple-equals
         if (pin != this._config!.restrictions.pin.code) {
@@ -148,7 +152,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
             e => e.user === this._hass!.user!.id
           ))
       ) {
-        if (!confirm("Are you sure you want to unlock?")) {
+        if (!confirm(this._config!.restrictions.confirm.text || "Are you sure you want to unlock?")) {
           return;
         }
       }

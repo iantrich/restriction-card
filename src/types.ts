@@ -14,10 +14,12 @@ export interface RestrictionsConfig {
 }
 
 export interface ConfirmRestrictionConfig {
+  text?: string;
   exemptions?: ExemptionConfig[];
 }
 
 export interface BlockRestrictionConfig {
+  text?: string;
   exemptions?: ExemptionConfig[];
 }
 
@@ -27,6 +29,7 @@ export interface HideRestrictionConfig {
 
 export interface PinRestrictionConfig {
   code: string;
+  text?: string;
   exemptions?: ExemptionConfig[];
 }
 

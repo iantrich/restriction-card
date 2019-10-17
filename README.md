@@ -41,22 +41,25 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 
 ## Confirm Options
 
-| Name       | Type | Requirement  | Description                                            |
-| ---------- | ---- | ------------ | ------------------------------------------------------ |
-| exemptions | list | **Optional** | List of exemption objects. See exemption object below. |
+| Name       | Type   | Requirement  | Description                                            |
+| ---------- | ------ | ------------ | ------------------------------------------------------ |
+| text       | string | **Optional** | Text to display in confirmation dialog                 |
+| exemptions | list   | **Optional** | List of exemption objects. See exemption object below. |
 
 ## Pin Options
 
 | Name       | Type   | Requirement  | Description                                            |
 | ---------- | ------ | ------------ | ------------------------------------------------------ |
 | pin        | string | **Required** | Pin code the user needs to enter to unlock             |
+| text       | string | **Optional** | Text to display in prompt dialog                       |
 | exemptions | list   | **Optional** | List of exemption objects. See exemption object below. |
 
 ## Block Options
 
-| Name       | Type | Requirement  | Description                                            |
-| ---------- | ---- | ------------ | ------------------------------------------------------ |
-| exemptions | list | **Optional** | List of exemption objects. See exemption object below. |
+| Name       | Type   | Requirement  | Description                                            |
+| ---------- | ------ | ------------ | ------------------------------------------------------ |
+| text       | string | **Optional** | Text to display in alert                               |
+| exemptions | list   | **Optional** | List of exemption objects. See exemption object below. |
 
 ## Hide Options
 
