@@ -5,6 +5,7 @@ export interface RestrictionCardConfig extends LovelaceCardConfig {
   exemptions?: ExemptionConfig[];
   condition?: ConditionConfig;
   card?: LovelaceCardConfig;
+  row?: boolean;
 }
 
 export interface RestrictionsConfig {

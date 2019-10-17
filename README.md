@@ -23,13 +23,14 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 
 ## Options
 
-| Name         | Type   | Requirement  | Description                                                                                                  |
-| ------------ | ------ | ------------ | ------------------------------------------------------------------------------------------------------------ |
-| type         | string | **Required** | `custom:restriction-card`                                                                                    |
-| card         | map    | **Required** | Card to render within `restriction-card`. Note: core cards must be defined as `custom:hui-{card name}-card`. |
-| restrictions | map    | **Optional** | Additional restrictions. See [Restrictions Options](#restrictions-options).                                  |
-| exemptions   | list   | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                                      |
-| condition    | map    | **Optional** | Conditional object to make lock active. See [Condition Options](#condition-options).                         |
+| Name         | Type    | Requirement  | Description                                                                                                  |
+| ------------ | ------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
+| type         | string  | **Required** | `custom:restriction-card`                                                                                    |
+| card         | map     | **Required** | Card to render within `restriction-card`. Note: core cards must be defined as `custom:hui-{card name}-card`. |
+| restrictions | map     | **Optional** | Additional restrictions. See [Restrictions Options](#restrictions-options).                                  |
+| exemptions   | list    | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                                      |
+| condition    | map     | **Optional** | Conditional object to make lock active. See [Condition Options](#condition-options).                         |
+| row          | boolean | **Optional** | Set to true to give a default `margin:left: 24px`                                                            |
 
 ## Restrictions Options
 
@@ -92,12 +93,13 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 The following variables are available and can be set in your theme to change the appearance of the lock.
 Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
 
-| name                             | Default              | Description                                   |
-| -------------------------------- | -------------------- | --------------------------------------------- |
-| --restriction-regular-lock-color | --primary-text-color | Lock color                                    |
-| --restriction-success-lock-color | --primary-color      | Lock color when unlocked                      |
-| --restriction-blocked-lock-color | --error-state-color  | Lock color when card is blocked               |
-| --restriction-invalid--color     | --error-state-color  | Lock color after an invalid attempt to unlock |
+| name                             | Default              | Description                                    |
+| -------------------------------- | -------------------- | ---------------------------------------------- |
+| `restriction-regular-lock-color` | `primary-text-color` | Lock color                                     |
+| `restriction-success-lock-color` | `primary-color`      | Lock color when unlocked                       |
+| `restriction-blocked-lock-color` | `error-state-color`  | Lock color when card is blocked                |
+| `restriction-invalid--color`     | `error-state-color`  | Lock color after an invalid attempt to unlock  |
+| `restriction-lock-margin-left`   | `unset`              | Manually bump the left margin of the lock icon |
 
 ## Example Configurations
 

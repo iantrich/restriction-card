@@ -112,7 +112,13 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                     : false
                 })}"
               >
-                <ha-icon icon="mdi:lock-outline" id="lock"></ha-icon>
+                <ha-icon
+                  icon="mdi:lock-outline"
+                  id="lock"
+                  class="${classMap({
+                    row: Boolean(this._config.row)
+                  })}"
+                ></ha-icon>
               </div>
             `}
         ${this.renderCard(this._config.card!)}
@@ -207,6 +213,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   static get styles(): CSSResult {
     return css`
       :host {
+        display: block;
         position: relative;
         --regular-lock-color: var(
           --restriction-regular-lock-color,
@@ -224,6 +231,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           --restriction-invalid--color,
           var(--error-state-color, #db4437)
         );
+        --lock-margin-left: var(--restriction-lock-margin-left, 0px);
       }
       #overlay {
         align-items: flex-start;
@@ -242,7 +250,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         color: var(--blocked-lock-color) !important;
       }
       #lock {
-        margin: unset;
+        margin-left: var(--lock-margin-left);
+      }
+      .row {
+        margin-left: 24px !important;
       }
       @keyframes fadeOut {
         20% {
