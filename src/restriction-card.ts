@@ -56,7 +56,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       throw new Error("A pin code is required for pin restrictions");
     }
 
-    this._config = config;
+    this._config = { duration: 5, ...config };
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
@@ -201,13 +201,13 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
     const overlay = this.shadowRoot!.getElementById("overlay") as LitElement;
     overlay.style.setProperty("pointer-events", "none");
-    lock.classList.add("fadeOut");
+    lock.classList.add("hidden");
     window.setTimeout(() => {
       overlay.style.setProperty("pointer-events", "");
       if (lock) {
-        lock.classList.remove("fadeOut");
+        lock.classList.remove("hidden");
       }
-    }, 5000);
+    }, this._config!.duration! * 1000);
   }
 
   static get styles(): CSSResult {
@@ -255,16 +255,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       .row {
         margin-left: 24px !important;
       }
-      @keyframes fadeOut {
-        20% {
-          opacity: 0;
-        }
-        80% {
-          opacity: 0;
-        }
-      }
-      .fadeOut {
-        animation: fadeOut 5s linear;
+      .hidden {
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s 2s, opacity 2s linear;
         color: var(--success-lock-color);
       }
       @keyframes blinker {

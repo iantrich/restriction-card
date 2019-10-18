@@ -26,9 +26,10 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 This card is available in the [HACS (Home Assistant Community Store)](https://hacs.netlify.com)
 
 In your `resources` section add
+
 ```yaml
-  - url: /community_plugin/restriction-card/restriction-card.js
-    type: module
+- url: /community_plugin/restriction-card/restriction-card.js
+  type: module
 ```
 
 ## Options
@@ -41,6 +42,7 @@ In your `resources` section add
 | exemptions   | list    | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                                      |
 | condition    | map     | **Optional** | Conditional object to make lock active. See [Condition Options](#condition-options).                         |
 | row          | boolean | **Optional** | Set to true to give a default `margin:left: 24px`                                                            |
+| duration     | number  | **Optional** | Duration of unlock in seconds. Default is `5`                                                                |
 
 ## Restrictions Options
 
@@ -156,14 +158,14 @@ Row example
 ![row](row.png)
 
 ```yaml
-type: 'custom:hui-entities-card'
+type: "custom:hui-entities-card"
 entities:
   - card:
       entity: cover.garage_door
-      type: 'custom:hui-cover-entity-row'
+      type: "custom:hui-cover-entity-row"
     restrictions:
       block: true
-    type: 'custom:restriction-card'
+    type: "custom:restriction-card"
     row: true
   - entity: light.kitchen
 ```
