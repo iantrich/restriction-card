@@ -19,6 +19,7 @@ import {
   LovelaceCardConfig,
   evaluateFilter
 } from "custom-card-helpers";
+import { longPress } from "./long-press-directive";
 
 @customElement("restriction-card")
 class RestrictionCard extends LitElement implements LovelaceCard {
@@ -56,7 +57,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       throw new Error("A pin code is required for pin restrictions");
     }
 
-    this._config = { duration: 5, ...config };
+    this._config = { duration: 5, action: "tap", ...config };
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
@@ -104,6 +105,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           ? ""
           : html`
               <div
+              @ha-click=${this._handleClick}
+              @ha-hold=${this._handleHold}
+              @ha-dblclick=${this._handleDblClick}
+              .longPress=${longPress({
+                hasDoubleClick: this._config!.action === "double_tap",
+              })}
                 @click=${this._handleClick}
                 id="overlay"
                 class="${classMap({
@@ -153,6 +160,24 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   private _handleClick(): void {
+    if (this._config!.action === "tap") {
+      this._handleRestriction();
+    }
+  }
+
+  private _handleDblClick(): void {
+    if (this._config!.action === "double_tap") {
+      this._handleRestriction();
+    }
+  }
+
+  private _handleHold() : void {
+    if (this._config!.action === "hold") {
+      this._handleRestriction();
+    }
+  }
+
+  private _handleRestriction(): void {
     const lock = this.shadowRoot!.getElementById("lock") as LitElement;
 
     if (this._config!.restrictions) {

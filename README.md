@@ -43,6 +43,7 @@ In your `resources` section add
 | condition    | map     | **Optional** | Conditional object to make lock active. See [Condition Options](#condition-options).                         |
 | row          | boolean | **Optional** | Set to true to give a default `margin:left: 24px`                                                            |
 | duration     | number  | **Optional** | Duration of unlock in seconds. Default is `5`                                                                |
+| action       | string  | **Optional** | Action type to trigger the unlock. Options are `tap`, `double_tap`, or `hold`. Default is `tap`              |
 
 ## Restrictions Options
 

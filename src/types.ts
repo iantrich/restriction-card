@@ -7,6 +7,7 @@ export interface RestrictionCardConfig extends LovelaceCardConfig {
   card?: LovelaceCardConfig;
   row?: boolean;
   delay?: number;
+  action: string;
 }
 
 export interface RestrictionsConfig {
@@ -49,4 +50,8 @@ export interface ConditionConfig {
   operator: string;
   entity: string;
   attribute?: string;
+}
+
+export interface LongPressOptions {
+  hasDoubleClick?: boolean;
 }
