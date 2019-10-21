@@ -133,7 +133,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   private renderCard(config: LovelaceCardConfig): TemplateResult {
-    const element = createThing(config);
+    const element = createThing(config, this._config!.row);
     if (this._hass) {
       element.hass = this._hass;
     }
