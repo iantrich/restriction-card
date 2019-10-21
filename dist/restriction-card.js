@@ -201,11 +201,10 @@ const ut=new WeakMap,pt=s(t=>e=>{if(!(e instanceof x)||e instanceof N||"class"!=
       <div>
         ${this._config.exemptions&&this._config.exemptions.some(t=>t.user===this._hass.user.id)||this._config.condition&&!Mt(this._hass.states[this._config.condition.entity],this._config.condition)?"":O`
               <div
-              @ha-click=${this._handleClick}
-              @ha-hold=${this._handleHold}
-              @ha-dblclick=${this._handleDblClick}
-              .longPress=${Rt({hasDoubleClick:"double_tap"===this._config.action})}
-                @click=${this._handleClick}
+                @ha-click=${this._handleClick}
+                @ha-hold=${this._handleHold}
+                @ha-dblclick=${this._handleDblClick}
+                .longPress=${Rt({hasDoubleClick:"double_tap"===this._config.action})}
                 id="overlay"
                 class="${pt({blocked:!!this._config.restrictions&&this._matchRestriction(this._config.restrictions.block)})}"
               >

@@ -105,13 +105,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           ? ""
           : html`
               <div
-              @ha-click=${this._handleClick}
-              @ha-hold=${this._handleHold}
-              @ha-dblclick=${this._handleDblClick}
-              .longPress=${longPress({
-                hasDoubleClick: this._config!.action === "double_tap",
-              })}
-                @click=${this._handleClick}
+                @ha-click=${this._handleClick}
+                @ha-hold=${this._handleHold}
+                @ha-dblclick=${this._handleDblClick}
+                .longPress=${longPress({
+                  hasDoubleClick: this._config!.action === "double_tap"
+                })}
                 id="overlay"
                 class="${classMap({
                   blocked: this._config.restrictions
@@ -171,7 +170,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
   }
 
-  private _handleHold() : void {
+  private _handleHold(): void {
     if (this._config!.action === "hold") {
       this._handleRestriction();
     }
