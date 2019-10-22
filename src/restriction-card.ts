@@ -20,6 +20,7 @@ import {
   evaluateFilter
 } from "custom-card-helpers";
 import { longPress } from "./long-press-directive";
+import { showConfirmationDialog } from "./show-dialog-confirmation";
 
 @customElement("restriction-card")
 class RestrictionCard extends LitElement implements LovelaceCard {
@@ -184,13 +185,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         if (this._config!.restrictions!.block!.text) {
           alert(this._config!.restrictions!.block!.text);
         }
-
-        lock.classList.add("invalid");
-        window.setTimeout(() => {
-          if (lock) {
-            lock.classList.remove("invalid");
-          }
-        }, 3000);
+        this._invalid();
         return;
       }
 
@@ -201,28 +196,38 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
         // tslint:disable-next-line: triple-equals
         if (pin != this._config!.restrictions!.pin!.code) {
-          lock.classList.add("invalid");
-          window.setTimeout(() => {
-            if (lock) {
-              lock.classList.remove("invalid");
-            }
-          }, 3000);
+          this._invalid();
           return;
+        } else {
+          this._unlodk();
         }
       }
 
       if (this._matchRestriction(this._config!.restrictions.confirm)) {
-        if (
-          !confirm(
+        showConfirmationDialog(this, {
+          text:
             this._config!.restrictions!.confirm!.text ||
-              "Are you sure you want to unlock?"
-          )
-        ) {
-          return;
-        }
+            "Are you sure you want to unlock?",
+          confirm: () => this._unlodk()
+        });
       }
+    } else {
+      this._unlodk();
     }
+  }
 
+  private _invalid() {
+    const lock = this.shadowRoot!.getElementById("lock") as LitElement;
+    lock.classList.add("invalid");
+    window.setTimeout(() => {
+      if (lock) {
+        lock.classList.remove("invalid");
+      }
+    }, 3000);
+  }
+
+  private _unlodk() {
+    const lock = this.shadowRoot!.getElementById("lock") as LitElement;
     const overlay = this.shadowRoot!.getElementById("overlay") as LitElement;
     overlay.style.setProperty("pointer-events", "none");
     lock.classList.add("hidden");
