@@ -106,13 +106,14 @@ In your `resources` section add
 The following variables are available and can be set in your theme to change the appearance of the lock.
 Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
 
-| name                             | Default              | Description                                    |
-| -------------------------------- | -------------------- | ---------------------------------------------- |
-| `restriction-regular-lock-color` | `primary-text-color` | Lock color                                     |
-| `restriction-success-lock-color` | `primary-color`      | Lock color when unlocked                       |
-| `restriction-blocked-lock-color` | `error-state-color`  | Lock color when card is blocked                |
-| `restriction-invalid--color`     | `error-state-color`  | Lock color after an invalid attempt to unlock  |
-| `restriction-lock-margin-left`   | `unset`              | Manually bump the left margin of the lock icon |
+| name                               | Default              | Description                                            |
+| ---------------------------------- | -------------------- | ------------------------------------------------------ |
+| `restriction-regular-lock-color`   | `primary-text-color` | Lock color                                             |
+| `restriction-success-lock-color`   | `primary-color`      | Lock color when unlocked                               |
+| `restriction-blocked-lock-color`   | `error-state-color`  | Lock color when card is blocked                        |
+| `restriction-invalid--color`       | `error-state-color`  | Lock color after an invalid attempt to unlock          |
+| `restriction-lock-margin-left`     | `0px`                | Manually bump the left margin of the lock icon         |
+| `restriction-lock-row-margin-left` | `24px`               | Manually bump the left margin of the lock icon in rows |
 
 ## Example Configurations
 

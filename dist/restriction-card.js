@@ -242,6 +242,7 @@ const ut=new WeakMap,pt=i(t=>e=>{if(!(e instanceof x)||e instanceof k||"class"!=
           var(--error-state-color, #db4437)
         );
         --lock-margin-left: var(--restriction-lock-margin-left, 0px);
+        --lock-row-margin-left: var(--restriction-lock-row-margin-left, 24px);
       }
       #overlay {
         align-items: flex-start;
@@ -263,7 +264,7 @@ const ut=new WeakMap,pt=i(t=>e=>{if(!(e instanceof x)||e instanceof k||"class"!=
         margin-left: var(--lock-margin-left);
       }
       .row {
-        margin-left: 24px !important;
+        margin-left: var(--lock-row-margin-left) !important;
       }
       .hidden {
         visibility: hidden;

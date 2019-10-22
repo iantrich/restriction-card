@@ -256,6 +256,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           var(--error-state-color, #db4437)
         );
         --lock-margin-left: var(--restriction-lock-margin-left, 0px);
+        --lock-row-margin-left: var(--restriction-lock-row-margin-left, 24px);
       }
       #overlay {
         align-items: flex-start;
@@ -277,7 +278,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         margin-left: var(--lock-margin-left);
       }
       .row {
-        margin-left: 24px !important;
+        margin-left: var(--lock-row-margin-left) !important;
       }
       .hidden {
         visibility: hidden;
