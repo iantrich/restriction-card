@@ -257,6 +257,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         );
         --lock-margin-left: var(--restriction-lock-margin-left, 0px);
         --lock-row-margin-left: var(--restriction-lock-row-margin-left, 24px);
+        --lock-icon-height: var(--restriction-lock-icon-height, var(--iron-icon-height, 24px));
+        --lock-icon-width: var(--restriction-lock-icon-width, var(--iron-icon-width, 24px));
+      }
+      ha-icon {
+        --iron-icon-height: var(--lock-icon-height);
+        --iron-icon-width: var(--lock-icon-width);
       }
       #overlay {
         align-items: flex-start;
