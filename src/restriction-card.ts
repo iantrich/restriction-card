@@ -20,6 +20,14 @@ import {
   evaluateFilter
 } from "custom-card-helpers";
 import { longPress } from "./long-press-directive";
+import { CARD_VERSION } from "./const";
+
+/* eslint no-console: 0 */
+console.info(
+  `%c  RESTRICTION-CARD  \n%c Version ${CARD_VERSION}      `,
+  'color: orange; font-weight: bold; background: black',
+  'color: white; font-weight: bold; background: dimgray',
+);
 
 @customElement("restriction-card")
 class RestrictionCard extends LitElement implements LovelaceCard {
