@@ -1,20 +1,20 @@
 import { directive, PropertyPart } from "lit-html";
-import { LongPressOptions } from "./types";
+import { fireEvent, ActionHandlerOptions } from "custom-card-helpers";
 
 const isTouch =
   "ontouchstart" in window ||
   navigator.maxTouchPoints > 0 ||
   navigator.msMaxTouchPoints > 0;
 
-interface LongPress extends HTMLElement {
+interface ActionHandler extends HTMLElement {
   holdTime: number;
   bind(element: Element, options): void;
 }
-interface LongPressElement extends Element {
-  longPress?: boolean;
+interface ActionHandlerElement extends Element {
+  actionHandler?: boolean;
 }
 
-class LongPress extends HTMLElement implements LongPress {
+class ActionHandler extends HTMLElement implements ActionHandler {
   public holdTime: number;
   public ripple: any;
   protected timer: number | undefined;
@@ -66,11 +66,11 @@ class LongPress extends HTMLElement implements LongPress {
     });
   }
 
-  public bind(element: LongPressElement, options) {
-    if (element.longPress) {
+  public bind(element: ActionHandlerElement, options) {
+    if (element.actionHandler) {
       return;
     }
-    element.longPress = true;
+    element.actionHandler = true;
 
     element.addEventListener("contextmenu", (ev: Event) => {
       const e = ev || window.event;
@@ -99,10 +99,13 @@ class LongPress extends HTMLElement implements LongPress {
         x = (ev as MouseEvent).pageX;
         y = (ev as MouseEvent).pageY;
       }
-      this.timer = window.setTimeout(() => {
-        this.startAnimation(x, y);
-        this.held = true;
-      }, this.holdTime);
+
+      if (options.hasHold) {
+        this.timer = window.setTimeout(() => {
+          this.startAnimation(x, y);
+          this.held = true;
+        }, this.holdTime);
+      }
 
       this.cooldownStart = true;
       window.setTimeout(() => (this.cooldownStart = false), 100);
@@ -120,18 +123,18 @@ class LongPress extends HTMLElement implements LongPress {
       this.stopAnimation();
       this.timer = undefined;
       if (this.held) {
-        element.dispatchEvent(new Event("ha-hold"));
-      } else if (options.hasDoubleClick) {
+        fireEvent(element as HTMLElement, "action", { action: "hold" });
+      } else if (options.hasDoubleTap) {
         if ((ev as MouseEvent).detail === 1) {
           this.dblClickTimeout = window.setTimeout(() => {
-            element.dispatchEvent(new Event("ha-click"));
+            fireEvent(element as HTMLElement, "action", { action: "tap" });
           }, 250);
         } else {
           clearTimeout(this.dblClickTimeout);
-          element.dispatchEvent(new Event("ha-dblclick"));
+          fireEvent(element as HTMLElement, "action", { action: "double_tap" });
         }
       } else {
-        element.dispatchEvent(new Event("ha-click"));
+        fireEvent(element as HTMLElement, "action", { action: "tap" });
       }
       this.cooldownEnd = true;
       window.setTimeout(() => (this.cooldownEnd = false), 100);
@@ -142,7 +145,7 @@ class LongPress extends HTMLElement implements LongPress {
     element.addEventListener("touchcancel", clickEnd);
 
     // iOS 13 sends a complete normal touchstart-touchend series of events followed by a mousedown-click series.
-    // That might be a bug, but until it's fixed, this should make long-press work.
+    // That might be a bug, but until it's fixed, this should make action-handler work.
     // If it's not a bug that is fixed, this might need updating with the next iOS version.
     // Note that all events (both touch and mouse) must be listened for in order to work on computers with both mouse and touchscreen.
     const isIOS13 = window.navigator.userAgent.match(/iPhone OS 13_/);
@@ -170,33 +173,33 @@ class LongPress extends HTMLElement implements LongPress {
   }
 }
 
-customElements.define("long-press-restriction", LongPress);
+customElements.define("action-handler-restriction", ActionHandler);
 
-const getLongPress = (): LongPress => {
+const geActionHandler = (): ActionHandler => {
   const body = document.body;
-  if (body.querySelector("long-press-restriction")) {
-    return body.querySelector("long-press-restriction") as LongPress;
+  if (body.querySelector("action-handler-restriction")) {
+    return body.querySelector("action-handler-restriction") as ActionHandler;
   }
 
-  const longpress = document.createElement("long-press-restriction");
-  body.appendChild(longpress);
+  const actionhandler = document.createElement("action-handler-restriction");
+  body.appendChild(actionhandler);
 
-  return longpress as LongPress;
+  return actionhandler as ActionHandler;
 };
 
-export const longPressBind = (
-  element: LongPressElement,
-  options: LongPressOptions
+export const actionHandlerBind = (
+  element: ActionHandlerElement,
+  options: ActionHandlerOptions
 ) => {
-  const longpress: LongPress = getLongPress();
-  if (!longpress) {
+  const actionhandler: ActionHandler = geActionHandler();
+  if (!actionhandler) {
     return;
   }
-  longpress.bind(element, options);
+  actionhandler.bind(element, options);
 };
 
-export const longPress = directive(
-  (options: LongPressOptions = {}) => (part: PropertyPart) => {
-    longPressBind(part.committer.element, options);
+export const actionHandler = directive(
+  (options: ActionHandlerOptions = {}) => (part: PropertyPart) => {
+    actionHandlerBind(part.committer.element, options);
   }
 );

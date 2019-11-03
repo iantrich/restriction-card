@@ -19,14 +19,14 @@ import {
   LovelaceCardConfig,
   evaluateFilter
 } from "custom-card-helpers";
-import { longPress } from "./long-press-directive";
 import { CARD_VERSION } from "./const";
+import { actionHandler } from "./action-handler-directive";
 
 /* eslint no-console: 0 */
 console.info(
   `%c  RESTRICTION-CARD  \n%c Version ${CARD_VERSION}      `,
-  'color: orange; font-weight: bold; background: black',
-  'color: white; font-weight: bold; background: dimgray',
+  "color: orange; font-weight: bold; background: black",
+  "color: white; font-weight: bold; background: dimgray"
 );
 
 @customElement("restriction-card")
@@ -113,11 +113,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           ? ""
           : html`
               <div
-                @ha-click=${this._handleClick}
-                @ha-hold=${this._handleHold}
-                @ha-dblclick=${this._handleDblClick}
-                .longPress=${longPress({
-                  hasDoubleClick: this._config!.action === "double_tap"
+                @action=${this._handleAction}
+                .actionHandler=${actionHandler({
+                  hasHold: this._config!.action === "hold",
+                  hasDoubleTap: this._config!.action === "double_tap"
                 })}
                 id="overlay"
                 class="${classMap({
@@ -166,20 +165,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     );
   }
 
-  private _handleClick(): void {
-    if (this._config!.action === "tap") {
-      this._handleRestriction();
-    }
-  }
-
-  private _handleDblClick(): void {
-    if (this._config!.action === "double_tap") {
-      this._handleRestriction();
-    }
-  }
-
-  private _handleHold(): void {
-    if (this._config!.action === "hold") {
+  private _handleAction(ev): void {
+    if (this._config!.action === ev.detail.action) {
       this._handleRestriction();
     }
   }
@@ -265,8 +252,14 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         );
         --lock-margin-left: var(--restriction-lock-margin-left, 0px);
         --lock-row-margin-left: var(--restriction-lock-row-margin-left, 24px);
-        --lock-icon-height: var(--restriction-lock-icon-height, var(--iron-icon-height, 24px));
-        --lock-icon-width: var(--restriction-lock-icon-width, var(--iron-icon-width, 24px));
+        --lock-icon-height: var(
+          --restriction-lock-icon-height,
+          var(--iron-icon-height, 24px)
+        );
+        --lock-icon-width: var(
+          --restriction-lock-icon-width,
+          var(--iron-icon-width, 24px)
+        );
       }
       ha-icon {
         --iron-icon-height: var(--lock-icon-height);

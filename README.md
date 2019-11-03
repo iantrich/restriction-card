@@ -8,6 +8,7 @@ This card is not to be used as a means to truly protect an instance. Someone wit
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
@@ -23,12 +24,11 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 
 ## Installation
 
-This card is available in the [HACS (Home Assistant Community Store)](https://hacs.netlify.com)
-
-In your `resources` section add
+Use [HACS](https://hacs.xyz) or follow this [guide](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
 ```yaml
-- url: /community_plugin/restriction-card/restriction-card.js
+resources:
+  url: /local/roku-card.js
   type: module
 ```
 
