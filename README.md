@@ -1,4 +1,4 @@
-# Restriction Card by [@iantrich](https://www.github.com/iantrich)
+# Restriction Card
 
 A card to provide restrictions on Lovelace cards defined within.
 
@@ -28,7 +28,7 @@ Use [HACS](https://hacs.xyz) or follow this [guide](https://github.com/thomaslov
 
 ```yaml
 resources:
-  url: /local/roku-card.js
+  url: /local/restriction-card.js
   type: module
 ```
 
