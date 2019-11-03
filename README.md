@@ -1,4 +1,4 @@
-# Restriction Card
+# 🔒 Restriction Card
 
 A card to provide restrictions on Lovelace cards defined within.
 
