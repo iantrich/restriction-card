@@ -1,4 +1,4 @@
-import { ActionConfig, LovelaceCardConfig } from "custom-card-helpers";
+import { LovelaceCardConfig } from 'custom-card-helpers';
 
 export interface RestrictionCardConfig extends LovelaceCardConfig {
   restrictions?: RestrictionsConfig;
@@ -50,8 +50,4 @@ export interface ConditionConfig {
   operator: string;
   entity: string;
   attribute?: string;
-}
-
-export interface LongPressOptions {
-  hasDoubleClick?: boolean;
 }

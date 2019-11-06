@@ -1,0 +1,67 @@
+resources:
+  - url: http://127.0.0.1:5000/restriction-card.js
+    type: module
+views:
+  - cards:
+      - type: custom:restriction-card
+        card:
+          type: light
+          entity: light.kitchen_lights
+          name: Basic
+      - type: custom:hui-entities-card
+        name: Rows
+        entities:
+          - type: custom:restriction-card
+            row: true
+            card:
+              entity: light.kitchen_lights
+              name: Basic
+          - type: custom:restriction-card
+            row: true
+            card:
+              entity: light.kitchen_lights
+              name: Block
+            restrictions:
+              block: true
+          - type: custom:restriction-card
+            row: true
+            card:
+              entity: light.kitchen_lights
+              name: Confirmation
+            restrictions:
+              confirm: true
+          - type: custom:restriction-card
+            row: true
+            card:
+              entity: light.kitchen_lights
+              name: Pin
+            restrictions:
+              pin:
+                code: 1234
+      - type: custom:restriction-card
+        restrictions:
+          confirm:
+            exemptions:
+              - user: adminid
+          pin:
+            code: 1234
+            exemptions:
+              - user: wifeid
+              - user: adminid
+          block:
+            exemptions:
+              - user: guestid
+              - user: wifeid
+              - user: adminid
+        exemptions:
+          - user: ianid
+        card:
+          type: light
+          entity: light.kitchen_lights
+          name: Exemptions
+      - type: custom:restriction-card
+        card:
+          type: sensor
+          entity: sensor.outside_humidity
+          name: Throttle?
+          graph: line
