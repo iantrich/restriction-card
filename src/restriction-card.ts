@@ -60,9 +60,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
+    const oldHass = changedProps.get('_hass') as HomeAssistant | undefined;
 
-    if (changedProps.has('config') || !oldHass) {
+    if (changedProps.has('_config') || !oldHass) {
       return true;
     }
 

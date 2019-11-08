@@ -8,6 +8,14 @@ views:
           type: light
           entity: light.kitchen_lights
           name: Basic
+      - type: custom:restriction-card
+        condition:
+          entity: light.kitchen_lights
+          value: "on"
+        card:
+          type: light
+          entity: light.kitchen_lights
+          name: Condition
       - type: custom:hui-entities-card
         name: Rows
         entities:
@@ -65,3 +73,7 @@ views:
           entity: sensor.outside_humidity
           name: Throttle?
           graph: line
+      - type: "custom:restriction-card"
+        card:
+          type: map
+          entities: []
