@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TemplateResult, customElement, LitElement, property, html, CSSResult, css, PropertyValues } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
 
@@ -24,6 +25,7 @@ console.info(
 class RestrictionCard extends LitElement implements LovelaceCard {
   @property() protected _config?: RestrictionCardConfig;
   @property() protected _hass?: HomeAssistant;
+  @property() private _helpers?: any;
 
   set hass(hass: HomeAssistant) {
     this._hass = hass;
@@ -57,6 +59,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
 
     this._config = { duration: 5, action: 'tap', ...config };
+
+    this.loadCardHelpers();
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
@@ -117,7 +121,14 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
   private renderCard(config: LovelaceCardConfig): TemplateResult {
     if (this._hass && this._config) {
-      const element = createThing(config, this._config.row);
+      let element;
+
+      if (this._config.row) {
+        element = this._helpers ? this._helpers.createEntityRow(config) : createThing(config, this._config.row);
+      } else {
+        element = this._helpers ? this._helpers.createCardElement(config) : createThing(config, this._config.row);
+      }
+
       element.hass = this._hass;
 
       return html`
@@ -138,6 +149,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         !restriction.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) &&
       (!restriction.condition || evaluateFilter(this._hass.states[restriction.condition.entity], restriction.condition))
     );
+  }
+
+  private async loadCardHelpers(): Promise<void> {
+    this._helpers = await (window as any).loadCardHelpers();
   }
 
   private _handleAction(ev): void {
