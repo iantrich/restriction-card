@@ -124,7 +124,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       let element;
 
       if (this._config.row) {
-        element = this._helpers ? this._helpers.createEntityRow(config) : createThing(config, this._config.row);
+        element = this._helpers ? this._helpers.createRowElement(config) : createThing(config, this._config.row);
       } else {
         element = this._helpers ? this._helpers.createCardElement(config) : createThing(config, this._config.row);
       }
