@@ -14,7 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Cache Dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install Dependencies
+        run: npm ci
       - name: Build
-        run: |
-          npm install
-          npm run build
+        run: npm run build
+      - uses: actions/upload-artifact@v1
+        with:
+          name: restriction-card.js
+          path: dist/restriction-card.js
