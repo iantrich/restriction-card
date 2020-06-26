@@ -120,6 +120,7 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 | `restriction-lock-row-margin-left` | `24px`               | Manually bump the left margin of the lock icon in rows |
 | `restriction-lock-icon-height`     | `24px`               | Lock icon height                                       |
 | `restriction-lock-icon-width`      | `24px`               | Lock icon width                                        |
+| `restriction-lock-opacity`         | `0.5`                | Lock icon opacity                                      |
 
 ## Example Configurations
 
