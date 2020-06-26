@@ -19,6 +19,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   @property() protected _config?: RestrictionCardConfig;
   @property() protected _hass?: HomeAssistant;
   @property() private _helpers?: any;
+  @property() private _unlocked = false;
   private _initialized = false;
   private _delay = false;
   private _maxed = false;
@@ -55,7 +56,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       throw new Error('A pin code is required for pin restrictions');
     }
 
-    this._config = { duration: 5, action: 'tap', ...config };
+    this._config = {
+      duration: 5,
+      action: 'tap',
+      locked_icon: 'mdi:lock-outline',
+      ...config,
+    };
 
     this.loadCardHelpers();
   }
@@ -107,7 +113,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 })}"
               >
                 <ha-icon
-                  icon="mdi:lock-outline"
+                  icon="${this._unlocked ? this._config.unlocked_icon! : this._config.locked_icon!}"
                   id="lock"
                   class="${classMap({
                     row: Boolean(this._config.row),
@@ -241,9 +247,16 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
     const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
     overlay.style.setProperty('pointer-events', 'none');
-    lock.classList.add('hidden');
+    if (this._config.unlocked_icon) {
+      this._unlocked = true;
+    } else {
+      lock.classList.add('hidden');
+    }
     window.setTimeout(() => {
       overlay.style.setProperty('pointer-events', '');
+      if (this._config?.unlocked_icon) {
+        this._unlocked = false;
+      }
       if (lock) {
         lock.classList.remove('hidden');
       }

@@ -38,16 +38,18 @@ resources:
 
 ## Options
 
-| Name         | Type    | Requirement  | Description                                                                                     |
-| ------------ | ------- | ------------ | ----------------------------------------------------------------------------------------------- |
-| type         | string  | **Required** | `custom:restriction-card`                                                                       |
-| card         | map     | **Required** | Card to render within `restriction-card`.                                                       |
-| restrictions | map     | **Optional** | Additional restrictions. See [Restrictions Options](#restrictions-options).                     |
-| exemptions   | list    | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                         |
-| condition    | map     | **Optional** | Conditional object to make lock active. See [Condition Options](#condition-options).            |
-| row          | boolean | **Optional** | Set to true to give a default `margin:left: 24px`                                               |
-| duration     | number  | **Optional** | Duration of unlock in seconds. Default is `5`                                                   |
-| action       | string  | **Optional** | Action type to trigger the unlock. Options are `tap`, `double_tap`, or `hold`. Default is `tap` |
+| Name          | Type    | Requirement  | Description                                                                                     |
+| ------------- | ------- | ------------ | ----------------------------------------------------------------------------------------------- |
+| type          | string  | **Required** | `custom:restriction-card`                                                                       |
+| card          | map     | **Required** | Card to render within `restriction-card`.                                                       |
+| restrictions  | map     | **Optional** | Additional restrictions. See [Restrictions Options](#restrictions-options).                     |
+| exemptions    | list    | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                         |
+| condition     | map     | **Optional** | Conditional object to make lock active. See [Condition Options](#condition-options).            |
+| row           | boolean | **Optional** | Set to true to give a default `margin:left: 24px`                                               |
+| duration      | number  | **Optional** | Duration of unlock in seconds. Default is `5`                                                   |
+| action        | string  | **Optional** | Action type to trigger the unlock. Options are `tap`, `double_tap`, or `hold`. Default is `tap` |
+| locked_icon   | string  | **Optional** | Icon to show when locked. Default is `mdi:lock-outline`                                         |
+| unlocked_icon | string  | **Optional** | Icon to show when unlocked instead of fading the icon away                                      |
 
 ## Restrictions Options
 

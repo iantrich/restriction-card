@@ -8,6 +8,8 @@ export interface RestrictionCardConfig extends LovelaceCardConfig {
   row?: boolean;
   delay?: number;
   action?: string;
+  locked_icon?: string;
+  unlocked_icon?: string;
 }
 
 export interface RestrictionsConfig {

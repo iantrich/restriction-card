@@ -61,4 +61,65 @@ frontend:
       table-row-background-color: '#000000'
       text-primary-color: 'var(--primary-text-color)'
       # restriction-lock-icon-size: '48px'
-      restriction-lock-icon-opacity: 1.0
+      restriction-lock-opacity: 1.0
+    day:
+      ### Main Interface Colors ###
+      primary-color: '#93abca'
+      light-primary-color: '#5F81B0'
+      primary-background-color: '#F0F5FF'
+      secondary-background-color: var(--primary-background-color)
+      secondary-background-color-alpha: 'rgba(220, 225, 235, 0.6)'
+      divider-color: '#D6DFEB'
+      ### Text ###
+      primary-text-color: '#395274'
+      secondary-text-color: '#5294E2'
+      text-primary-color: '#FFFFFF'
+      disabled-text-color: '#88A1C4'
+      ### Sidebar Menu ###
+      sidebar-icon-color: '#395274'
+      sidebar-text-color: var(--sidebar-icon-color)
+      sidebar-selected-background-color: var(--primary-background-color)
+      sidebar-selected-icon-color: '#FF6262'
+      sidebar-selected-text-color: var(--sidebar-selected-icon-color)
+      ### States and Badges ###
+      state-icon-color: '#395274'
+      state-icon-active-color: '#ebb307'
+      state-icon-unavailable-color: var(--disabled-text-color)
+      ### Sliders ###
+      paper-slider-knob-color: '#FF6262'
+      paper-slider-knob-start-color: var(--paper-slider-knob-color)
+      paper-slider-pin-color: var(--paper-slider-knob-color)
+      paper-slider-active-color: var(--paper-slider-knob-color)
+      paper-slider-secondary-color: var(--light-primary-color)
+      ### Labels ###
+      label-badge-background-color: '#FFFFFF'
+      label-badge-text-color: '#395274'
+      label-badge-red: '#FF8888'
+      ### Cards ###
+      paper-card-background-color: 'rgba(255, 255, 255, 0.4)'
+      paper-listbox-background-color: '#F0F1F3'
+      card-background-color: 'var(--primary-background-color)'
+
+      ha-card-border-radius: 10px
+      border-color: 'var(--primary-text-color)'
+      background-image: 'center / cover no-repeat url("/local/background/day.jpg") fixed'
+
+      ### Toggles ###
+      paper-toggle-button-checked-button-color: '#FF6262'
+      paper-toggle-button-checked-bar-color: '#FF6262'
+      paper-toggle-button-unchecked-button-color: '#395274'
+      paper-toggle-button-unchecked-bar-color: '#9CB2CE'
+      switch-checked-color: 'var(--paper-toggle-button-checked-button-color)'
+      switch-unchecked-button-color: 'var(--paper-toggle-button-unchecked-button-color)'
+      switch-unchecked-color: 'var(--paper-toggle-button-unchecked-bar-color)'
+      switch-unchecked-track-color: 'var(--paper-toggle-button-unchecked-bar-color)'
+      ### Table row ###
+      table-row-background-color: var(--primary-background-color)
+      table-row-alternative-background-color: var(--secondary-background-color)
+
+      restriction-regular-lock-color: '#e45e65'
+      restriction-lock-row-margin-left: 78%
+      restriction-lock-margin-left: 40%
+      restriction-lock-opacity: 0.9
+
+      sc-background-filter: none
