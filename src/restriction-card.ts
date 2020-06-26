@@ -20,6 +20,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   @property() protected _hass?: HomeAssistant;
   @property() private _helpers?: any;
   private _initialized = false;
+  private _delay = false;
+  private _maxed = false;
+  private _retries = 0;
 
   set hass(hass: HomeAssistant) {
     this._hass = hass;
@@ -156,13 +159,13 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   private _handleAction(ev): void {
-    if (this._config && this._config.action === ev.detail.action) {
+    if (this._config?.action === ev.detail.action) {
       this._handleRestriction();
     }
   }
 
   private _handleRestriction(): void {
-    if (!this._config || !this.shadowRoot) {
+    if (!this._config || !this.shadowRoot || this._delay || this._maxed) {
       return;
     }
 
@@ -189,12 +192,43 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         // tslint:disable-next-line: triple-equals
         if (pin != this._config.restrictions.pin.code) {
           lock.classList.add('invalid');
-          window.setTimeout(() => {
-            if (lock) {
-              lock.classList.remove('invalid');
-            }
-          }, 3000);
+          this._delay = Boolean(this._config.restrictions.pin.retry_delay);
+          if (this._config.restrictions.pin.max_retries) {
+            this._retries++;
+          }
+
+          if (this._config.restrictions.pin.max_retries && this._retries >= this._config.restrictions.pin.max_retries) {
+            this._maxed = true;
+
+            window.setTimeout(
+              () => {
+                if (lock) {
+                  lock.classList.remove('invalid');
+                }
+                this._retries = 0;
+                this._maxed = false;
+                this._delay = false;
+              },
+              this._config.restrictions.pin.max_retries_delay
+                ? this._config.restrictions.pin.max_retries_delay * 1000
+                : 5000,
+            );
+          } else {
+            window.setTimeout(
+              () => {
+                this._delay = false;
+
+                if (lock && !this._maxed) {
+                  lock.classList.remove('invalid');
+                }
+              },
+              this._config.restrictions.pin.retry_delay ? this._config.restrictions.pin.retry_delay * 1000 : 3000,
+            );
+          }
+
           return;
+        } else {
+          this._retries = 0;
         }
       }
 

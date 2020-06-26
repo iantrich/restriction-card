@@ -39,6 +39,9 @@ export interface PinRestrictionConfig {
   text?: string;
   exemptions?: ExemptionConfig[];
   condition?: ConditionConfig;
+  retry_delay?: number;
+  max_retries?: number;
+  max_retries_delay?: number;
 }
 
 export interface ExemptionConfig {

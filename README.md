@@ -68,12 +68,15 @@ resources:
 
 ## Pin Options
 
-| Name       | Type   | Requirement  | Description                                                                                 |
-| ---------- | ------ | ------------ | ------------------------------------------------------------------------------------------- |
-| pin        | string | **Required** | Pin code the user needs to enter to unlock                                                  |
-| text       | string | **Optional** | Text to display in prompt dialog                                                            |
-| exemptions | list   | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                     |
-| condition  | map    | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options). |
+| Name              | Type   | Requirement  | Description                                                                                                               |
+| ----------------- | ------ | ------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| pin               | string | **Required** | Pin code the user needs to enter to unlock                                                                                |
+| text              | string | **Optional** | Text to display in prompt dialog                                                                                          |
+| exemptions        | list   | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                                                   |
+| condition         | map    | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options).                               |
+| retry_delay       | number | **Optional** | Number of seconds that you want to delay next attempt to unlock. Default is `0`                                           |
+| max_retries       | number | **Optional** | Number of consecutive invalid retries allowed before blocking for the `max_retries_delay` seconds. Default is `unlimited` |
+| max_retries_delay | number | **Optional** | Number of seconds to block attempts to unlock after the `max_retries` has been reached                                    |
 
 ## Block Options
 
