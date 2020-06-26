@@ -7,7 +7,7 @@ export interface RestrictionCardConfig extends LovelaceCardConfig {
   card?: LovelaceCardConfig;
   row?: boolean;
   delay?: number;
-  action: string;
+  action?: string;
 }
 
 export interface RestrictionsConfig {

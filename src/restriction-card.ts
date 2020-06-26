@@ -3,14 +3,7 @@ import { TemplateResult, customElement, LitElement, property, html, CSSResult, c
 import { classMap } from 'lit-html/directives/class-map';
 
 import { RestrictionCardConfig } from './types';
-import {
-  HomeAssistant,
-  createThing,
-  LovelaceCard,
-  computeCardSize,
-  LovelaceCardConfig,
-  evaluateFilter,
-} from 'custom-card-helpers';
+import { HomeAssistant, LovelaceCard, computeCardSize, LovelaceCardConfig, evaluateFilter } from 'custom-card-helpers';
 import { CARD_VERSION } from './const';
 import { actionHandler } from './action-handler-directive';
 
@@ -26,6 +19,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   @property() protected _config?: RestrictionCardConfig;
   @property() protected _hass?: HomeAssistant;
   @property() private _helpers?: any;
+  private _initialized = false;
 
   set hass(hass: HomeAssistant) {
     this._hass = hass;
@@ -64,6 +58,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
+    if (!this._initialized) {
+      this._initialize();
+    }
+
     const oldHass = changedProps.get('_hass') as HomeAssistant | undefined;
 
     if (changedProps.has('_config') || !oldHass) {
@@ -78,7 +76,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   protected render(): TemplateResult | void {
-    if (!this._config || !this._hass || !this._config.card) {
+    if (!this._config || !this._hass || !this._config.card || !this._helpers) {
       return html``;
     }
 
@@ -98,7 +96,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 @action=${this._handleAction}
                 .actionHandler=${actionHandler({
                   hasHold: this._config.action === 'hold',
-                  hasDoubleTap: this._config.action === 'double_tap',
+                  hasDoubleClick: this._config.action === 'double_tap',
                 })}
                 id="overlay"
                 class="${classMap({
@@ -119,16 +117,22 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     `;
   }
 
+  private _initialize(): void {
+    if (this.hass === undefined) return;
+    if (this._config === undefined) return;
+    if (this._helpers === undefined) return;
+    this._initialized = true;
+  }
+
+  private async loadCardHelpers(): Promise<void> {
+    this._helpers = await (window as any).loadCardHelpers();
+  }
+
   private renderCard(config: LovelaceCardConfig): TemplateResult {
-    if (this._hass && this._config) {
-      let element;
-
-      if (this._config.row) {
-        element = this._helpers ? this._helpers.createRowElement(config) : createThing(config, this._config.row);
-      } else {
-        element = this._helpers ? this._helpers.createCardElement(config) : createThing(config, this._config.row);
-      }
-
+    if (this._hass && this._config && this._helpers) {
+      const element = this._config.row
+        ? this._helpers.createRowElement(config)
+        : this._helpers.createCardElement(config);
       element.hass = this._hass;
 
       return html`
@@ -149,10 +153,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         !restriction.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) &&
       (!restriction.condition || evaluateFilter(this._hass.states[restriction.condition.entity], restriction.condition))
     );
-  }
-
-  private async loadCardHelpers(): Promise<void> {
-    this._helpers = await (window as any).loadCardHelpers();
   }
 
   private _handleAction(ev): void {

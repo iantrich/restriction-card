@@ -16,6 +16,10 @@ This card is not to be used as a means to truly protect an instance. Someone wit
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 
+## Minimum Home Assistant Version
+
+Home Assistant version 0.110.0 or higher is required as of release 1.2.0 of restriction-card
+
 ## Support
 
 Hey dude! Help me out for a couple of :beers: or a :coffee:!
@@ -162,13 +166,13 @@ Row example
 ![row](row.png)
 
 ```yaml
-type: "custom:hui-entities-card"
+type: 'custom:hui-entities-card'
 entities:
   - card:
       entity: cover.garage_door
     restrictions:
       block: true
-    type: "custom:restriction-card"
+    type: 'custom:restriction-card'
     row: true
   - entity: light.kitchen
 ```
