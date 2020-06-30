@@ -191,6 +191,6 @@ entities:
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [forum]: https://community.home-assistant.io/t/lovelace-restriction-card-client-side-security/142889
 [license-shield]: https://img.shields.io/github/license/custom-cards/restriction-card.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2019.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-Ian%20Richardson%20%40iantrich-blue.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/custom-cards/restriction-card.svg?style=for-the-badge
 [releases]: https://github.com/custom-cards/restriction-card/releases
