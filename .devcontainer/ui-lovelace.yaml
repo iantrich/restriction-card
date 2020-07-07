@@ -3,6 +3,19 @@ resources:
     type: module
 views:
   - cards:
+      - entities:
+          - action: double_tap
+            card:
+              entity: light.kitchen_lights
+            restrictions:
+              confirm:
+                text: Are you sure you want to restart HA?
+            row: true
+            type: 'custom:restriction-card'
+        show_header_toggle: false
+        state_color: true
+        title: System Utils
+        type: entities
       - type: custom:restriction-card
         unlocked_icon: mdi:lock-open-outline
         locked_icon: mdi:update
