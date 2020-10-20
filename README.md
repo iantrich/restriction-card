@@ -72,7 +72,7 @@ resources:
 
 | Name              | Type   | Requirement  | Description                                                                                                               |
 | ----------------- | ------ | ------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| pin               | string | **Required** | Pin code the user needs to enter to unlock                                                                                |
+| code               | string | **Required** | Pin code the user needs to enter to unlock                                                                                |
 | text              | string | **Optional** | Text to display in prompt dialog                                                                                          |
 | exemptions        | list   | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                                                   |
 | condition         | map    | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options).                               |
