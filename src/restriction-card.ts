@@ -302,7 +302,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       .row {
         margin-left: var(--lock-row-margin-left) !important;
-        margin-top: var(--lock-row-margin-top) !important;        
+        margin-top: var(--lock-row-margin-top) !important;
       }
       .hidden {
         visibility: hidden;
