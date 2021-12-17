@@ -123,6 +123,7 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 | `restriction-invalid--color`       | `error-state-color`  | Lock color after an invalid attempt to unlock          |
 | `restriction-lock-margin-left`     | `0px`                | Manually bump the left margin of the lock icon         |
 | `restriction-lock-row-margin-left` | `24px`               | Manually bump the left margin of the lock icon in rows |
+| `restriction-lock-row-margin-top`  | `0px`                | Manually bump the top margin of the lock icon in rows  |
 | `restriction-lock-icon-size`       | `24px`               | Lock icon size                                         |
 | `restriction-lock-opacity`         | `0.5`                | Lock icon opacity                                      |
 
