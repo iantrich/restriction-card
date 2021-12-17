@@ -306,7 +306,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       .hidden {
         visibility: hidden;
-        opacity: 0;
+        opacity: 0 !important;
         transition: visibility 0s 2s, opacity 2s linear;
         color: var(--success-lock-color);
       }
