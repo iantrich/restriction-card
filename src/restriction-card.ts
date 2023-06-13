@@ -289,7 +289,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         right: 0;
         top: 0;
         bottom: 0;
-        z-index: 50;
         display: flex;
         color: var(--regular-lock-color);
       }
