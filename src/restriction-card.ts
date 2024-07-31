@@ -171,7 +171,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   private async _handleRestriction(): Promise<void> {
-    if (!this._config || !this.shadowRoot || this._delay || this._maxed) {
+    if (!this._config || !this.shadowRoot || this._delay || this._maxed || !this._helpers) {
       return;
     }
 
@@ -193,8 +193,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
 
       if (this._config.restrictions.pin && this._matchRestriction(this._config.restrictions.pin)) {
-        const helpers = await (window as any).loadCardHelpers();
-        const pin = await helpers.showEnterCodeDialog(lock, {
+        const pin = await this._helpers.showEnterCodeDialog(lock, {
           codeFormat: 'number',
           title: this._config.restrictions.pin.text || 'Input pin code',
           submitText: 'OK',
