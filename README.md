@@ -183,19 +183,7 @@ entities:
   - entity: light.kitchen
 ```
 
-Special Consideration for Input Selects:
-If you find that the restriction card is blocking something you don't want blocked like an input select, try adjusting the z-index using mod-card
-```
-card:
-  type: custom:mod-card
-  card_mod:
-    style: |
-      ha-card {
-        z-index: 7;
-        }
-  card:
-    type: custom:restriction-card
-```
+
 
 ## [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
