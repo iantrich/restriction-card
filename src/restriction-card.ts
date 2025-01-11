@@ -145,7 +145,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       element.hass = this._hass;
 
       return html`
-        <div id="card" class=${classMap({ 'card-row': this._config.row })}>
+        <div id="card" class=${classMap({ 'card-row': this._config.row === true })}>
           ${element}
         </div>
       `;
