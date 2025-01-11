@@ -295,7 +295,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       .card-row {
         overflow-y: clip;
-      }      
+      }
       .blocked {
         color: var(--blocked-lock-color) !important;
       }
