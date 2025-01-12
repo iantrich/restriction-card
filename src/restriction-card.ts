@@ -266,7 +266,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   static get styles(): CSSResult {
     return css`
       :host {
-        display: inline;
         position: relative;
         --regular-lock-color: var(--restriction-regular-lock-color, var(--primary-text-color, #212121));
         --success-lock-color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4));
