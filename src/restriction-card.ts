@@ -266,7 +266,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   static get styles(): CSSResult {
     return css`
       :host {
-        display: inline;
         position: relative;
         --regular-lock-color: var(--restriction-regular-lock-color, var(--primary-text-color, #212121));
         --success-lock-color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4));
@@ -295,6 +294,23 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         z-index: 1;
         display: flex;
         color: var(--regular-lock-color);
+        background: var(--restriction-overlay-background, unset);
+      }
+      #overlay:has(.hidden) {
+        background: unset;
+      }
+      #overlay:not(:has(.hidden)):has(+ #card.card-row) {
+        outline: var(--restriction-overlay-row-outline, none);
+        border-radius: var(--restriction-overlay-row-border-radius, 0);
+      }
+      #overlay:not(:has(+ #card.card-row)) {
+        border-radius: var(--ha-card-border-radius, 12px);
+      }
+      #overlay.blocked {
+        background: var(--restriction-overlay-background-blocked, unset);
+      }
+      #overlay.blocked:has(+ #card.card-row) {
+        outline: var(--restriction-overlay-row-outline-blocked, none);
       }
       #card {
         height: 100%;
