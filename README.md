@@ -115,17 +115,20 @@ resources:
 The following variables are available and can be set in your theme to change the appearance of the lock.
 Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
 
-| name                               | Default              | Description                                            |
-| ---------------------------------- | -------------------- | ------------------------------------------------------ |
-| `restriction-regular-lock-color`   | `primary-text-color` | Lock color                                             |
-| `restriction-success-lock-color`   | `primary-color`      | Lock color when unlocked                               |
-| `restriction-blocked-lock-color`   | `error-state-color`  | Lock color when card is blocked                        |
-| `restriction-invalid--color`       | `error-state-color`  | Lock color after an invalid attempt to unlock          |
-| `restriction-lock-margin-left`     | `0px`                | Manually bump the left margin of the lock icon         |
-| `restriction-lock-row-margin-left` | `24px`               | Manually bump the left margin of the lock icon in rows |
-| `restriction-lock-row-margin-top`  | `0px`                | Manually bump the top margin of the lock icon in rows  |
-| `restriction-lock-icon-size`       | `24px`               | Lock icon size                                         |
-| `restriction-lock-opacity`         | `0.5`                | Lock icon opacity                                      |
+| name                                    | Default              | Description                                             |
+| --------------------------------------- | -------------------- | ------------------------------------------------------- |
+| `restriction-regular-lock-color`        | `primary-text-color` | Lock color                                              |
+| `restriction-success-lock-color`        | `primary-color`      | Lock color when unlocked                                |
+| `restriction-blocked-lock-color`        | `error-state-color`  | Lock color when card is blocked                         |
+| `restriction-invalid--color`            | `error-state-color`  | Lock color after an invalid attempt to unlock           |
+| `restriction-lock-margin-left`          | `0px`                | Manually bump the left margin of the lock icon          |
+| `restriction-lock-row-margin-left`      | `24px`               | Manually bump the left margin of the lock icon in a row |
+| `restriction-lock-row-margin-top`       | `0px`                | Manually bump the top margin of the lock icon in a row  |
+| `restriction-lock-icon-size`            | `24px`               | Lock icon size                                          |
+| `restriction-lock-opacity`              | `0.5`                | Lock icon opacity                                       |
+| `restriction-overlay-background`        | `unset`              | Overlay background when locked                          |
+| `restriction-overlay-row-outline`       | `none`               | Outline for an overlay in a row                         |
+| `restriction-overlay-row-border-radius` | `0`                  | Border radius for an overlay in a row                   |
 
 ## Example Configurations
 
@@ -183,7 +186,41 @@ entities:
   - entity: light.kitchen
 ```
 
+Overlay background example
+
+Card:
+
+![image](https://github.com/user-attachments/assets/10c14259-374e-4283-be33-6cf2a129507c)
+```yaml
+type: custom:restriction-card
+card:
+  type: button
+  entity: switch.test_switch
+```
+
+Row:
+
+![image](https://github.com/user-attachments/assets/93752506-b2df-44fa-ae66-b36bdd430f1d)
+```yaml
+type: entities
+entities:
+  - type: custom:restriction-card
+    row: true
+    card:
+      entity: switch.test_switch
+```
+
+Theme file:
+```yaml
+  restriction-overlay-background: repeating-linear-gradient( -45deg, transparent 0 10px,var(--user-restriction-card-mask,rgba(255,0,0,0.07)) 10px 20px)
+  restriction-lock-opacity: 0
+  restriction-overlay-row-border-radius: 4px
+  restriction-overlay-row-outline: 1px solid rgba(255,0,0,0.1)
+```
+
+
 Special Consideration for Input Selects:
+
 If you find that the restriction card is blocking something you don't want blocked like an input select, try adjusting the z-index using mod-card
 ```
 card:
