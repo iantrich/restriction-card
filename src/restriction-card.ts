@@ -296,7 +296,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         display: flex;
         color: var(--regular-lock-color);
         background: var(--restriction-overlay-background, unset);
-        border-radius: var(--ha-card-border-radius, 12px);
       }
       #overlay:has(.hidden) {
         background: unset;
@@ -304,6 +303,15 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       #overlay:not(:has(.hidden)):has(+ #card.card-row) {
         outline: var(--restriction-overlay-row-outline, none);
         border-radius: var(--restriction-overlay-row-border-radius, 0);
+      }
+      #overlay:not(:has(+ #card.card-row)) {
+        border-radius: var(--ha-card-border-radius, 12px);
+      }
+      #overlay.blocked {
+        background: var(--restriction-overlay-background-blocked, unset);
+      }
+      #overlay.blocked:has(+ #card.card-row) {
+        outline: var(--restriction-overlay-row-outline-blocked, none);
       }
       #card {
         height: 100%;
