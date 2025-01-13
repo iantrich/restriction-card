@@ -301,6 +301,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       #overlay:has(.hidden) {
         background: unset;
       }
+      #overlay:not(:has(.hidden)):has(+ #card.card-row) {
+        outline: var(--restriction-overlay-row-outline, none);
+        border-radius: var(--restriction-overlay-row-border-radius, 0);
+      }
       #card {
         height: 100%;
       }
