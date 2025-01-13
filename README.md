@@ -115,17 +115,17 @@ resources:
 The following variables are available and can be set in your theme to change the appearance of the lock.
 Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
 
-| name                                    | Default              | Description                                             |
-| --------------------------------------- | -------------------- | ------------------------------------------------------- |
-| `restriction-regular-lock-color`        | `primary-text-color` | Lock color                                              |
-| `restriction-success-lock-color`        | `primary-color`      | Lock color when unlocked                                |
-| `restriction-blocked-lock-color`        | `error-state-color`  | Lock color when card is blocked                         |
-| `restriction-invalid--color`            | `error-state-color`  | Lock color after an invalid attempt to unlock           |
-| `restriction-lock-margin-left`          | `0px`                | Manually bump the left margin of the lock icon          |
-| `restriction-lock-row-margin-left`      | `24px`               | Manually bump the left margin of the lock icon in a row |
-| `restriction-lock-row-margin-top`       | `0px`                | Manually bump the top margin of the lock icon in a row  |
-| `restriction-lock-icon-size`            | `24px`               | Lock icon size                                          |
-| `restriction-lock-opacity`              | `0.5`                | Lock icon opacity                                       |
+| name                               | Default              | Description                                            |
+| ---------------------------------- | -------------------- | ------------------------------------------------------ |
+| `restriction-regular-lock-color`   | `primary-text-color` | Lock color                                             |
+| `restriction-success-lock-color`   | `primary-color`      | Lock color when unlocked                               |
+| `restriction-blocked-lock-color`   | `error-state-color`  | Lock color when card is blocked                        |
+| `restriction-invalid--color`       | `error-state-color`  | Lock color after an invalid attempt to unlock          |
+| `restriction-lock-margin-left`     | `0px`                | Manually bump the left margin of the lock icon         |
+| `restriction-lock-row-margin-left` | `24px`               | Manually bump the left margin of the lock icon in a row |
+| `restriction-lock-row-margin-top`  | `0px`                | Manually bump the top margin of the lock icon in a row |
+| `restriction-lock-icon-size`       | `24px`               | Lock icon size                                         |
+| `restriction-lock-opacity`         | `0.5`                | Lock icon opacity                                      |
 | `restriction-overlay-background`        | `unset`              | Overlay background when locked                          |
 | `restriction-overlay-row-outline`       | `none`               | Outline for an overlay in a row                         |
 | `restriction-overlay-row-border-radius` | `0`                  | Border radius for an overlay in a row                   |
