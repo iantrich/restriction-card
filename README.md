@@ -127,7 +127,9 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 | `restriction-lock-icon-size`       | `24px`               | Lock icon size                                         |
 | `restriction-lock-opacity`         | `0.5`                | Lock icon opacity                                      |
 | `restriction-overlay-background`        | `unset`              | Overlay background when locked                          |
-| `restriction-overlay-row-outline`       | `none`               | Outline for an overlay in a row                         |
+| `restriction-overlay-row-outline`       | `none`               | Outline for an overlay in a row when locked             |
+| `restriction-overlay-background-blocked`  | `unset`            | Overlay background when blocked                         |
+| `restriction-overlay-row-outline-blocked` | `none`             | Outline for an overlay in a row when blocked            |
 | `restriction-overlay-row-border-radius` | `0`                  | Border radius for an overlay in a row                   |
 
 ## Example Configurations
@@ -188,17 +190,18 @@ entities:
 
 Overlay background example
 
-Card:
+Card locked:
 
-![image](https://github.com/user-attachments/assets/10c14259-374e-4283-be33-6cf2a129507c)
+![image](https://github.com/user-attachments/assets/54b64298-ba6f-4687-a704-e63dc2a1b11e)
 ```yaml
 type: custom:restriction-card
 card:
-  type: button
-  entity: switch.test_switch
+  type: entities
+  entities:
+    - entity: switch.test_switch
 ```
 
-Row:
+Row locked:
 
 ![image](https://github.com/user-attachments/assets/93752506-b2df-44fa-ae66-b36bdd430f1d)
 ```yaml
@@ -210,12 +213,41 @@ entities:
       entity: switch.test_switch
 ```
 
+Card blocked:
+
+![image](https://github.com/user-attachments/assets/a9336776-a2ea-4689-b801-fa43e64ab001)
+```yaml
+type: custom:restriction-card
+restrictions:
+  block: true
+card:
+  type: entities
+  entities:
+    - entity: switch.test_switch
+```
+
+Row blocked:
+
+![image](https://github.com/user-attachments/assets/0ea65870-45a5-4a60-9aa8-97ce8b697934)
+```yaml
+type: entities
+entities:
+  - type: custom:restriction-card
+    restrictions:
+      block: true
+    row: true
+    card:
+      entity: switch.test_switch
+```
+
 Theme file:
 ```yaml
   restriction-overlay-background: repeating-linear-gradient( -45deg, transparent 0 10px,var(--user-restriction-card-mask,rgba(255,0,0,0.07)) 10px 20px)
+  restriction-overlay-background-blocked: repeating-linear-gradient( -45deg, transparent 0 10px,var(--user-restriction-card-mask,rgba(127,127,127,0.07)) 10px 20px)
   restriction-lock-opacity: 0
   restriction-overlay-row-border-radius: 4px
   restriction-overlay-row-outline: 1px solid rgba(255,0,0,0.1)
+  restriction-overlay-row-outline-blocked: 1px solid rgba(127,127,127,0.1)
 ```
 
 
