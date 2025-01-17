@@ -279,6 +279,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       div:has(#card) {
         height: 100%;
+        position: relative;
       }
       ha-icon {
         --mdc-icon-size: var(--lock-icon-size);
@@ -292,7 +293,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         top: 0;
         bottom: 0;
         z-index: 1;
-        display: flex;
         color: var(--regular-lock-color);
         background: var(--restriction-overlay-background, unset);
       }
