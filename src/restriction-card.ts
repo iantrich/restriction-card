@@ -285,7 +285,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         --mdc-icon-size: var(--lock-icon-size);
       }
       #overlay {
-        align-items: flex-start;
         padding: 8px 7px;
         position: absolute;
         left: 0;
