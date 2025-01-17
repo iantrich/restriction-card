@@ -285,7 +285,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         --mdc-icon-size: var(--lock-icon-size);
       }
       #overlay {
-        align-items: flex-start;
         padding: 8px 7px;
         position: absolute;
         left: 0;
@@ -297,7 +296,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         background: var(--restriction-overlay-background, unset);
       }
       #overlay:has(.hidden) {
-        background: unset;
+        opacity: 0 !important;
+        transition: opacity 2s linear;
       }
       #overlay:not(:has(.hidden)):has(+ #card.card-row) {
         outline: var(--restriction-overlay-row-outline, none);
