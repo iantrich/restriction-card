@@ -283,12 +283,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       div:has(#card) {
         height: 100%;
+        position: relative;
       }
       ha-icon {
         --mdc-icon-size: var(--lock-icon-size);
       }
       #overlay {
-        align-items: flex-start;
         padding: 8px 7px;
         position: absolute;
         left: 0;
@@ -296,29 +296,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         top: 0;
         bottom: 0;
         z-index: 1;
-        display: flex;
         color: var(--regular-lock-color);
         background: var(--restriction-overlay-background, unset);
-        background: var(--restriction-overlay-background, unset);
       }
       #overlay:has(.hidden) {
-        background: unset;
-      }
-      #overlay:not(:has(.hidden)):has(+ #card.card-row) {
-        outline: var(--restriction-overlay-row-outline, none);
-        border-radius: var(--restriction-overlay-row-border-radius, 0);
-      }
-      #overlay:not(:has(+ #card.card-row)) {
-        border-radius: var(--ha-card-border-radius, 12px);
-      }
-      #overlay.blocked {
-        background: var(--restriction-overlay-background-blocked, unset);
-      }
-      #overlay.blocked:has(+ #card.card-row) {
-        outline: var(--restriction-overlay-row-outline-blocked, none);
-      }
-      #overlay:has(.hidden) {
-        background: unset;
+        opacity: 0 !important;
+        transition: opacity 2s linear;
       }
       #overlay:not(:has(.hidden)):has(+ #card.card-row) {
         outline: var(--restriction-overlay-row-outline, none);
