@@ -16,6 +16,7 @@
   "author": "Ian Richardson <iantrich@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "cron-parser": "4.9.0",
     "custom-card-helpers": "^1.6.4",
     "home-assistant-js-websocket": "^4.4.0",
     "lit-element": "^2.3.1",

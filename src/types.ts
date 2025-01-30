@@ -46,9 +46,21 @@ export interface PinRestrictionConfig {
   max_retries_delay?: number;
 }
 
-export interface ExemptionConfig {
+export interface TimeExemption {
+  times: string[];
+}
+
+export interface UserExemption {
   user: string;
 }
+
+export const isUserExemption = (exemption: ExemptionConfig): exemption is UserExemption =>
+  typeof (exemption as UserExemption).user === 'string';
+
+export const isTimeExemption = (exemption: ExemptionConfig): exemption is TimeExemption =>
+  Array.isArray((exemption as TimeExemption).times);
+
+export type ExemptionConfig = TimeExemption | UserExemption;
 
 export interface ConditionConfig {
   value: string;

@@ -2,10 +2,11 @@
 import { TemplateResult, customElement, LitElement, property, html, CSSResult, css, PropertyValues } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
 
-import { RestrictionCardConfig } from './types';
+import { isTimeExemption, isUserExemption, RestrictionCardConfig } from './types';
 import { HomeAssistant, LovelaceCard, computeCardSize, LovelaceCardConfig, evaluateFilter } from 'custom-card-helpers';
 import { CARD_VERSION } from './const';
 import { actionHandler } from './action-handler-directive';
+import { isWithinTimeExemption } from './time-exemption';
 
 /* eslint no-console: 0 */
 console.info(
@@ -96,7 +97,14 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     return html`
       <div>
         ${(this._config.exemptions &&
-          this._config.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) ||
+          this._config.exemptions.some(e => {
+            if (isUserExemption(e)) {
+              return this._hass && this._hass.user ? e.user === this._hass.user.id : false;
+            } else if (isTimeExemption(e)) {
+              return isWithinTimeExemption(e);
+            }
+            throw new Error('Unknown exemption type');
+          })) ||
         (this._config.condition &&
           !evaluateFilter(this._hass.states[this._config.condition.entity], this._config.condition))
           ? ''
