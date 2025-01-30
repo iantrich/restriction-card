@@ -320,7 +320,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         height: 100%;
       }
       #overlay:not(:has(.hidden)) + #card.card-row {
-        overflow-y: clip;
+        overflow: clip;
       }
       .blocked {
         color: var(--blocked-lock-color) !important;
