@@ -97,9 +97,38 @@ resources:
 
 ## Exemption Options
 
+Each exemption must contain EITHER a `user` OR a `times` field. You should not specify both in the same exemption object.
+
 | Name | Type   | Requirement  | Description                                                |
 | ---- | ------ | ------------ | ---------------------------------------------------------- |
 | user | string | **Required** | User id to exempt. This is found in the user profile `ID`. |
+| times | array | **Required** | Array of CRON expressions that define when this exemption is active. See [CRON Expressions](#cron-expressions) below. |
+
+## CRON Expressions
+
+Time exemptions use CRON expressions to define when the exemption should be active. CRON expressions are a powerful way to specify recurring time patterns.
+
+For help building CRON expressions, you can use [crontab.guru](https://crontab.guru/), an excellent interactive editor for CRON expressions.
+
+**Important**: The CRON expressions MUST define intervals rather than specific moments. The exemption needs to be active for a period of time to work properly.
+
+Good examples (defines intervals):
+- `* * * * *` - Active every minute
+- `0-30 * * * *` - Active for the first 30 minutes of every hour
+- `0-59 9-17 * * *` - Active during business hours (9 AM - 5 PM)
+- `0-59 9-16 * * 1-5` - Active during weekday business hours (9 AM - 4:59 PM, Mon-Fri)
+
+Bad examples (specific moments, will not work):
+- `0 9 * * *` - ❌ Only triggers at exactly 9 AM
+- `30 * * * *` - ❌ Only triggers at minute 30
+
+Example time exemption:
+```yaml
+exemptions:
+  times: 
+    - "0 9-17 * * 1-5"  # Active during business hours (9 AM - 5 PM) on weekdays
+    - "0 10-16 * * 0,6" # Active from 10 AM - 4 PM on weekends
+```
 
 ## Condition Options
 
