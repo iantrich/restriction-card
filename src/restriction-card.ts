@@ -199,10 +199,11 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         if (!isMultiplePins) {
           const xxxx = this._config.restrictions.pin.code[0];
           const yyy = this._config.restrictions.pin.code;
-          codeFormat = regex.test(this._config.restrictions.pin.code[0]) ? 'number' : 'text';
+          const asString = this._config.restrictions.pin.code as string;
+          codeFormat = regex.test(asString) ? 'number' : 'text';
         } else {
-          const arrayJoined = this._config.restrictions.pin.code;
-          codeFormat = regex.test(arrayJoined.join('')) ? 'number' : 'text';
+          const asArray = this._config.restrictions.pin.code as string[];
+          codeFormat = regex.test(asArray.join('')) ? 'number' : 'text';
         }
         const pin = await this._helpers.showEnterCodeDialog(lock, {
           codeFormat: codeFormat,
@@ -211,8 +212,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         });
 
         if (
-          (!isMultiplePins && pin != this._config.restrictions.pin.code[0]) ||
-          (isMultiplePins && !this._config.restrictions.pin.code.includes(pin))
+          (!isMultiplePins && pin != (this._config.restrictions.pin.code as string)) ||
+          (isMultiplePins && !(this._config.restrictions.pin.code as string[]).includes(pin))
         ) {
           lock.classList.add('invalid');
           this._delay = Boolean(this._config.restrictions.pin.retry_delay);
