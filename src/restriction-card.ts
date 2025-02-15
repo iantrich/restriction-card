@@ -193,8 +193,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
 
       if (this._config.restrictions.pin && this._matchRestriction(this._config.restrictions.pin)) {
-        const codeFormat =
-          typeof this._config.restrictions.pin === 'number' && !isNaN(this._config.restrictions.pin)
+        const codeFormat = !isNaN(this._config.restrictions.pin)
             ? 'number'
             : 'text';
         const pin = await this._helpers.showEnterCodeDialog(lock, {
