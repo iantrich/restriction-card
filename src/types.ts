@@ -37,7 +37,7 @@ export interface HideRestrictionConfig {
 }
 
 export interface PinRestrictionConfig {
-  code: string;
+  code: string | string[];
   text?: string;
   exemptions?: ExemptionConfig[];
   condition?: ConditionConfig;
