@@ -197,7 +197,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         const regex = /^\d+$/;
         let codeFormat;
         if (!isMultiplePins) {
-          codeFormat = regex.test(this._config.restrictions.pin.code) ? 'number' : 'text';
+          let xxxx = this._config.restrictions.pin.code[0];
+          let yyy = this._config.restrictions.pin.code;
+          codeFormat = regex.test(this._config.restrictions.pin.code[0]) ? 'number' : 'text';
         } else {
           const arrayJoined = this._config.restrictions.pin.code;
           codeFormat = regex.test(arrayJoined.join('')) ? 'number' : 'text';
@@ -209,7 +211,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         });
 
         if (
-          (!isMultiplePins && pin != this._config.restrictions.pin.code) ||
+          (!isMultiplePins && pin != this._config.restrictions.pin.code[0]) ||
           (isMultiplePins && !this._config.restrictions.pin.code.includes(pin))
         ) {
           lock.classList.add('invalid');
