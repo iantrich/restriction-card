@@ -214,8 +214,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
         let conditionArray = false;
         if (isMultiplePins)
-          for (const pinElement of this._config.restrictions.pin.code as string[]) {
-            if ((pinElement as string) === pin) {
+          for (const pinElement of (this._config.restrictions.pin.code as string[])) {
+            if (String(pinElement) === pin) {
               conditionArray = false;
               break;
             } else conditionArray = true;
