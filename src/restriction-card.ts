@@ -193,16 +193,35 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
 
       if (this._config.restrictions.pin && this._matchRestriction(this._config.restrictions.pin)) {
+        const isMultiplePins = Array.isArray(this._config.restrictions.pin.code);
         const regex = /^\d+$/;
-        const codeFormat = regex.test(this._config.restrictions.pin.code) ? 'number' : 'text';
+        let codeFormat;
+        if (!isMultiplePins) {
+          const asString = this._config.restrictions.pin.code as string;
+          codeFormat = regex.test(asString) ? 'number' : 'text';
+        } else {
+          const asArray = this._config.restrictions.pin.code as string[];
+          codeFormat = regex.test(asArray.join('')) ? 'number' : 'text';
+        }
         const pin = await this._helpers.showEnterCodeDialog(lock, {
           codeFormat: codeFormat,
           title: this._config.restrictions.pin.text || 'Input pin code',
           submitText: 'OK',
         });
 
-        // tslint:disable-next-line: triple-equals
-        if (pin != this._config.restrictions.pin.code) {
+        let conditionString = false;
+        if (!isMultiplePins) conditionString = pin != (this._config.restrictions.pin.code as string);
+
+        let conditionArray = false;
+        if (isMultiplePins)
+          for (const pinElement of this._config.restrictions.pin.code) {
+            if (String(pinElement) === pin) {
+              conditionArray = false;
+              break;
+            } else conditionArray = true;
+          }
+
+        if (conditionString || conditionArray) {
           lock.classList.add('invalid');
           this._delay = Boolean(this._config.restrictions.pin.retry_delay);
           if (this._config.restrictions.pin.max_retries) {
