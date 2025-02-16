@@ -250,6 +250,26 @@ Theme file:
   restriction-overlay-row-outline-blocked: 1px solid rgba(127,127,127,0.1)
 ```
 
+Multiple pin codes example
+```
+...
+restrictions:
+  pin:
+    code:
+      - abc1234
+      - 1234
+      - "0000"
+      - 5656
+      - 12
+      - "0012"
+    text: Enter pin to unlock
+...
+```
+Notes:
+1. Numerical values with leading zeros may be mistreated. To avoid this, wrap values in quotes.
+2. Dependently on a presence of alpha-numeric pin codes (like `abcd`, `abcd1234`, `12 34`, `12.24`, `12,34`) in the `code` option, a particular "enter pin" dialog is shown: if all values are numerical - a numerical keypad is shown, otherwise - a simple input-box allowing to input any characters.
+
+<hr style="border: 1px soild gray">
 
 Special Consideration for Input Selects:
 
