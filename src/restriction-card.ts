@@ -331,12 +331,13 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       #lock {
         margin-inline-start: var(--lock-margin-left);
+        margin-top: var(--lock-margin-top);
         opacity: var(--lock-opacity);
+        position: inherit;
       }
       .row {
         margin-inline-start: var(--lock-row-margin-left) !important;
         margin-top: var(--lock-row-margin-top) !important;
-        position: inherit;
       }
       .hidden {
         visibility: hidden;
