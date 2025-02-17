@@ -133,6 +133,8 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 | `restriction-overlay-row-outline-blocked` | `none`             | Outline for an overlay in a row when blocked            |
 | `restriction-overlay-row-border-radius` | `0`                  | Border radius for an overlay in a row                   |
 
+Note: `*-lock-*-margin-*` variables should not be negative to prevent a "lock" icon to be clipped.
+
 ## Example Configurations
 
 Simple Lock example
