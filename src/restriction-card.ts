@@ -320,6 +320,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         background: var(--restriction-overlay-background, unset);
       }
       #overlay.unlocked {
+        border-color: transparent;
         opacity: 0 !important;
         transition: border-color 2s, opacity 2s linear;
       }
