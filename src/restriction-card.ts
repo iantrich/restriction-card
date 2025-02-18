@@ -112,7 +112,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 class=${classMap({
                   locked: !Boolean(this._unlocked) && !Boolean(isBlocked),
                   blocked: Boolean(isBlocked),
-                  "has-row": Boolean(this._config.row),
+                  'has-row': Boolean(this._config.row),
                 })}
               >
                 <ha-icon
@@ -123,8 +123,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                     : this._config.locked_icon!}
                   id="lock"
                   class=${classMap({
-                    "icon-blocked": Boolean(isBlocked),
-                    "icon-in-row": Boolean(this._config.row),
+                    'icon-blocked': Boolean(isBlocked),
+                    'icon-in-row': Boolean(this._config.row),
                   })}
                 ></ha-icon>
               </div>
