@@ -319,14 +319,14 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         border-radius: var(--ha-card-border-radius, 12px);
         background: var(--restriction-overlay-background, unset);
       }
+      #overlay.has-row {
+        border-radius: var(--restriction-overlay-row-border-radius, 0) !important;
+        border: var(--restriction-overlay-row-outline, none);
+      }
       #overlay.unlocked {
         border-color: transparent;
         opacity: 0 !important;
         transition: border-color 2s, opacity 2s linear;
-      }
-      #overlay.has-row.locked {
-        border: var(--restriction-overlay-row-outline, none);
-        border-radius: var(--restriction-overlay-row-border-radius, 0) !important;
       }
       #overlay.blocked {
         background: var(--restriction-overlay-background-blocked, unset) !important;
