@@ -343,6 +343,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       #overlay:not(.unlocked) + #card.is-row {
         overflow: hidden;
+        pointer-events: none;
       }
       #lock {
         margin-inline-start: var(--restriction-lock-margin-left, 0px);
