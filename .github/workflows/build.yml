@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Cache Dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
