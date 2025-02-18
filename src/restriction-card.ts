@@ -277,7 +277,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     this._unlocked = true;
     const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
     overlay.style.setProperty('pointer-events', 'none');
-    const useUnlockedIcon = Boolean(this._config.unlocked_icon?);
+    const useUnlockedIcon = Boolean(this._config.unlocked_icon!);
     if (!useUnlockedIcon) {
       lock.classList.add('icon-hidden');
     }
