@@ -93,8 +93,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       return html``;
     }
 
+    const isBlocked = this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false;
     return html`
-      <div>
+      <div id="mainContainer">
         ${(this._config.exemptions &&
           this._config.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) ||
         (this._config.condition &&
@@ -108,16 +109,23 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                   hasDoubleClick: this._config.action === 'double_tap',
                 })}
                 id="overlay"
-                class="${classMap({
-                  blocked: this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false,
-                })}"
+                class=${classMap({
+                  locked: !Boolean(this._unlocked) && !Boolean(isBlocked),
+                  blocked: Boolean(isBlocked),
+                  "has-row": Boolean(this._config.row),
+                })}
               >
                 <ha-icon
-                  icon="${this._unlocked ? this._config.unlocked_icon! : this._config.locked_icon!}"
+                  icon=${Boolean(this._unlocked)
+                    ? this._config.unlocked_icon!
+                      ? this._config.unlocked_icon
+                      : this._config.locked_icon!
+                    : this._config.locked_icon!}
                   id="lock"
-                  class="${classMap({
-                    row: Boolean(this._config.row),
-                  })}"
+                  class=${classMap({
+                    "icon-blocked": Boolean(isBlocked),
+                    "icon-in-row": Boolean(this._config.row),
+                  })}
                 ></ha-icon>
               </div>
             `}
@@ -145,7 +153,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       element.hass = this._hass;
 
       return html`
-        <div id="card" class=${classMap({ 'card-row': this._config.row === true })}>
+        <div id="card" class=${classMap({ 'is-row': Boolean(this._config.row) })}>
           ${element}
         </div>
       `;
@@ -183,11 +191,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           alert(this._config.restrictions.block.text);
         }
 
-        lock.classList.add('invalid');
+        lock.classList.add('icon-invalid');
         window.setTimeout(() => {
-          if (lock) {
-            lock.classList.remove('invalid');
-          }
+          lock.classList.remove('icon-invalid');
         }, 3000);
         return;
       }
@@ -222,7 +228,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           }
 
         if (conditionString || conditionArray) {
-          lock.classList.add('invalid');
+          lock.classList.add('icon-invalid');
           this._delay = Boolean(this._config.restrictions.pin.retry_delay);
           if (this._config.restrictions.pin.max_retries) {
             this._retries++;
@@ -233,9 +239,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
             window.setTimeout(
               () => {
-                if (lock) {
-                  lock.classList.remove('invalid');
-                }
+                lock.classList.remove('icon-invalid');
                 this._retries = 0;
                 this._maxed = false;
                 this._delay = false;
@@ -249,8 +253,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
               () => {
                 this._delay = false;
 
-                if (lock && !this._maxed) {
-                  lock.classList.remove('invalid');
+                if (!this._maxed) {
+                  lock.classList.remove('icon-invalid');
                 }
               },
               this._config.restrictions.pin.retry_delay ? this._config.restrictions.pin.retry_delay * 1000 : 3000,
@@ -270,21 +274,23 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
     }
 
+    this._unlocked = true;
     const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
     overlay.style.setProperty('pointer-events', 'none');
-    if (this._config.unlocked_icon) {
-      this._unlocked = true;
-    } else {
-      lock.classList.add('hidden');
+    if (!this._config.unlocked_icon) {
+      lock.classList.add('icon-hidden');
     }
+    overlay.classList.add('unlocked');
+    overlay.classList.remove('locked');
+
     window.setTimeout(() => {
+      this._unlocked = false;
       overlay.style.setProperty('pointer-events', '');
-      if (this._config?.unlocked_icon) {
-        this._unlocked = false;
+      if (!this._config.unlocked_icon) {
+        lock.classList.remove('icon-hidden');
       }
-      if (lock) {
-        lock.classList.remove('hidden');
-      }
+      overlay.classList.remove('unlocked');
+      overlay.classList.add('locked');
     }, this._config.duration * 1000);
   }
 
@@ -292,17 +298,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     return css`
       :host {
         position: relative;
-        --regular-lock-color: var(--restriction-regular-lock-color, var(--primary-text-color, #212121));
-        --success-lock-color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4));
-        --blocked-lock-color: var(--restriction-blocked-lock-color, var(--error-state-color, #db4437));
-        --invalid-lock-color: var(--restriction-invalid--color, var(--error-state-color, #db4437));
-        --lock-margin-left: var(--restriction-lock-margin-left, 0px);
-        --lock-row-margin-left: var(--restriction-lock-row-margin-left, 24px);
-        --lock-row-margin-top: var(--restriction-lock-row-margin-top, 0px);
         --lock-icon-size: var(--restriction-lock-icon-size, var(--mdc-icon-size, 24px));
-        --lock-opacity: var(--restriction-lock-opacity, 0.5);
       }
-      div:has(#card) {
+      #mainContainer {
         height: 100%;
         position: relative;
       }
@@ -317,61 +315,63 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         top: 0;
         bottom: 0;
         z-index: 1;
-        color: var(--regular-lock-color);
+        border-radius: var(--ha-card-border-radius, 12px);
+      }
+      #overlay.locked {
         background: var(--restriction-overlay-background, unset);
       }
-      #overlay:has(.hidden) {
+      #overlay.unlocked {
         opacity: 0 !important;
         transition: opacity 2s linear;
       }
-      #overlay:not(:has(.hidden)):has(+ #card.card-row) {
+      #overlay.has-row.locked {
         outline: var(--restriction-overlay-row-outline, none);
-        border-radius: var(--restriction-overlay-row-border-radius, 0);
-      }
-      #overlay:not(:has(+ #card.card-row)) {
-        border-radius: var(--ha-card-border-radius, 12px);
+        border-radius: var(--restriction-overlay-row-border-radius, 0) !important;
       }
       #overlay.blocked {
         background: var(--restriction-overlay-background-blocked, unset);
       }
-      #overlay.blocked:has(+ #card.card-row) {
+      #overlay.has-row.blocked {
         outline: var(--restriction-overlay-row-outline-blocked, none);
+        border-radius: var(--restriction-overlay-row-border-radius, 0) !important;
       }
       #card {
         height: 100%;
       }
-      #overlay:not(:has(.hidden)) {
-        overflow: clip;
-      }
-      #overlay:not(:has(.hidden)) + #card.card-row {
+      #overlay:not(.unlocked) {
         overflow: hidden;
       }
-      .blocked {
-        color: var(--blocked-lock-color) !important;
+      #overlay:not(.unlocked) + #card.is-row {
+        overflow: hidden;
       }
       #lock {
-        margin-inline-start: var(--lock-margin-left);
-        opacity: var(--lock-opacity);
+        margin-inline-start: var(--restriction-lock-margin-left, 0px);
+        opacity: var(--restriction-lock-opacity, 0.5);
+        color: var(--restriction-regular-lock-color, var(--primary-text-color, #212121));
       }
-      .row {
-        margin-inline-start: var(--lock-row-margin-left) !important;
-        margin-top: var(--lock-row-margin-top) !important;
+      .icon-in-row {
+        margin-inline-start: var(--restriction-lock-row-margin-left, 24px) !important;
+        margin-top: var(--restriction-lock-row-margin-top, 0px) !important;
         position: inherit;
       }
-      .hidden {
-        visibility: hidden;
+      .icon-hidden {
         opacity: 0 !important;
         transition: visibility 0s 2s, opacity 2s linear;
-        color: var(--success-lock-color);
+      }
+      .icon-unlocked {
+        color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4)) !important;
+      }
+      .icon-blocked {
+        color: var(--restriction-blocked-lock-color, var(--error-state-color, #db4437)) !important;
+      }
+      .icon-invalid {
+        animation: blinker 1s linear infinite;
+        color: var(--restriction-invalid-lock-color, var(--error-state-color, #db4437)) !important;
       }
       @keyframes blinker {
         50% {
           opacity: 0;
         }
-      }
-      .invalid {
-        animation: blinker 1s linear infinite;
-        color: var(--invalid-lock-color);
       }
     `;
   }
