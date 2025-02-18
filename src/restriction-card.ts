@@ -321,7 +321,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       #overlay.unlocked {
         opacity: 0 !important;
-        transition: opacity 2s linear;
+        transition: border-color 2s, opacity 2s linear;
       }
       #overlay.has-row.locked {
         border: var(--restriction-overlay-row-outline, none);
