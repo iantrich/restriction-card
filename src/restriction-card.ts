@@ -128,7 +128,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                       'icon-in-row': Boolean(this._config.row),
                     })}
                   ></ha-icon>
-                </div>  
+                </div>
               </div>
             `}
         ${this.renderCard(this._config.card)}
