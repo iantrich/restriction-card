@@ -116,10 +116,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                   'fill-available': true,
                 })}
               >
-                <div
-                  id="subContainer"
-                  class=${classMap({ 'fill-available': true })}
-                >
+                <div id="subContainer" class=${classMap({ 'fill-available': true })}>
                   <ha-icon
                     icon=${Boolean(this._unlocked)
                       ? this._config.unlocked_icon
