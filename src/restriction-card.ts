@@ -113,9 +113,13 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                   locked: !Boolean(this._unlocked) && !Boolean(isBlocked),
                   blocked: Boolean(isBlocked),
                   'has-row': Boolean(this._config.row),
+                  'fill-available': true,
                 })}
               >
-                <div id="subContainer">
+                <div
+                  id="subContainer"
+                  class=${classMap({ 'fill-available': true })}
+                >
                   <ha-icon
                     icon=${Boolean(this._unlocked)
                       ? this._config.unlocked_icon
@@ -310,16 +314,17 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       ha-icon {
         --mdc-icon-size: var(--lock-icon-size);
       }
-      #overlay {
+      .fill-available {
         position: absolute;
         left: 0;
         right: 0;
         top: 0;
         bottom: 0;
+      }
+      #overlay {
         z-index: 1;
       }
       #subContainer {
-        height: 100%;
         padding: 8px 7px;
         border-radius: var(--ha-card-border-radius, 12px);
         background: var(--restriction-overlay-background, unset);
