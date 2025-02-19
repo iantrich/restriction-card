@@ -280,19 +280,14 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     this._unlocked = true;
     const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
     overlay.style.setProperty('pointer-events', 'none');
-    const useUnlockedIcon = Boolean(this._config.unlocked_icon!);
-    if (!useUnlockedIcon) {
-      lock.classList.add('icon-hidden');
-    }
+    lock.classList.add('icon-hidden');
     overlay.classList.add('unlocked');
     overlay.classList.remove('locked');
 
     window.setTimeout(() => {
       this._unlocked = false;
       overlay.style.setProperty('pointer-events', '');
-      if (!useUnlockedIcon) {
-        lock.classList.remove('icon-hidden');
-      }
+      lock.classList.remove('icon-hidden');
       overlay.classList.remove('unlocked');
       overlay.classList.add('locked');
     }, this._config.duration * 1000);
