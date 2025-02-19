@@ -115,19 +115,19 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                   'has-row': Boolean(this._config.row),
                 })}
               >
-              <div id="subContainer">
-                <ha-icon
-                  icon=${Boolean(this._unlocked)
-                    ? this._config.unlocked_icon
+                <div id="subContainer">
+                  <ha-icon
+                    icon=${Boolean(this._unlocked)
                       ? this._config.unlocked_icon
-                      : this._config.locked_icon
-                    : this._config.locked_icon}
-                  id="lock"
-                  class=${classMap({
-                    'icon-blocked': Boolean(isBlocked),
-                    'icon-in-row': Boolean(this._config.row),
-                  })}
-                ></ha-icon>
+                        ? this._config.unlocked_icon
+                        : this._config.locked_icon
+                      : this._config.locked_icon}
+                    id="lock"
+                    class=${classMap({
+                      'icon-blocked': Boolean(isBlocked),
+                      'icon-in-row': Boolean(this._config.row),
+                    })}
+                  ></ha-icon>
                 </div>  
               </div>
             `}
@@ -347,7 +347,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         overflow: hidden;
       }
       #overlay:not(.unlocked) + #card.is-row {
-        overflow: hidden; /********************************************************************************/
+        overflow: hidden;
       }
       #lock {
         margin-inline-start: var(--restriction-lock-margin-left, 0px);
