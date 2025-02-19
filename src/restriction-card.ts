@@ -109,9 +109,11 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 })}
                 id="overlay"
                 class=${classMap({
-                  locked: !Boolean(this._unlocked) && !Boolean(
-                    this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false,
-                  ),
+                  locked:
+                    !Boolean(this._unlocked) &&
+                    !Boolean(
+                      this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false,
+                    ),
                   blocked: Boolean(
                     this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false,
                   ),
