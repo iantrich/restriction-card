@@ -93,6 +93,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       return html``;
     }
 
+    const isBlocked = this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false;
     return html`
       <div id="mainContainer">
         ${(this._config.exemptions &&
@@ -109,14 +110,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 })}
                 id="overlay"
                 class=${classMap({
-                  locked:
-                    !Boolean(this._unlocked) &&
-                    !Boolean(
-                      this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false,
-                    ),
-                  blocked: Boolean(
-                    this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false,
-                  ),
+                  locked: !Boolean(this._unlocked) && !Boolean(isBlocked),
+                  blocked: Boolean(isBlocked),
                   'has-row': Boolean(this._config.row),
                   'fill-available': true,
                 })}
@@ -130,9 +125,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                       : this._config.locked_icon}
                     id="lock"
                     class=${classMap({
-                      'icon-blocked': Boolean(
-                        this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false,
-                      ),
+                      'icon-blocked': Boolean(isBlocked),
                       'icon-in-row': Boolean(this._config.row),
                     })}
                   ></ha-icon>
