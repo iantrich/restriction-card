@@ -115,6 +115,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                   'has-row': Boolean(this._config.row),
                 })}
               >
+              <div id="subContainer">
                 <ha-icon
                   icon=${Boolean(this._unlocked)
                     ? this._config.unlocked_icon
@@ -127,6 +128,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                     'icon-in-row': Boolean(this._config.row),
                   })}
                 ></ha-icon>
+                </div>  
               </div>
             `}
         ${this.renderCard(this._config.card)}
@@ -316,22 +318,25 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         top: 0;
         bottom: 0;
         z-index: 1;
+      }
+      #subContainer {
+        height: 100%;
         border-radius: var(--ha-card-border-radius, 12px);
         background: var(--restriction-overlay-background, unset);
       }
-      #overlay.has-row {
+      #overlay.has-row #subContainer {
         border-radius: var(--restriction-overlay-row-border-radius, 0) !important;
         border: var(--restriction-overlay-row-outline, none);
       }
-      #overlay.unlocked {
+      #overlay.unlocked #subContainer {
         border-color: transparent;
         opacity: 0 !important;
         transition: border-color 2s, opacity 2s linear;
       }
-      #overlay.blocked {
+      #overlay.blocked #subContainer {
         background: var(--restriction-overlay-background-blocked, unset) !important;
       }
-      #overlay.has-row.blocked {
+      #overlay.has-row.blocked #subContainer {
         border: var(--restriction-overlay-row-outline-blocked, none);
         border-radius: var(--restriction-overlay-row-border-radius, 0) !important;
       }
@@ -342,8 +347,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         overflow: hidden;
       }
       #overlay:not(.unlocked) + #card.is-row {
-        overflow: hidden;
-        pointer-events: none;
+        overflow: hidden; /********************************************************************************/
       }
       #lock {
         margin-inline-start: var(--restriction-lock-margin-left, 0px);
