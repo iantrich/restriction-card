@@ -85,10 +85,18 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       return oldHass.states[entity] !== this._hass.states[entity];
     } else if (!this._config.restrictions) {
       return false;
-    } else if (this._config.restrictions.block && this._config.restrictions.block.condition && this._config.restrictions.block.condition.entity) {
+    } else if (
+      this._config.restrictions.block &&
+      this._config.restrictions.block.condition &&
+      this._config.restrictions.block.condition.entity
+    ) {
       entity = this._config.restrictions.block.condition.entity;
       return oldHass.states[entity] !== this._hass.states[entity];
-    } else if (this._config.restrictions.hide && this._config.restrictions.hide.condition && this._config.restrictions.hide.condition.entity) {
+    } else if (
+      this._config.restrictions.hide &&
+      this._config.restrictions.hide.condition &&
+      this._config.restrictions.hide.condition.entity
+    ) {
       entity = this._config.restrictions.hide.condition.entity;
       return oldHass.states[entity] !== this._hass.states[entity];
     } else {
