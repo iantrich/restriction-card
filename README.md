@@ -120,7 +120,7 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 | `restriction-regular-lock-color`   | `primary-text-color` | Lock color                                             |
 | `restriction-success-lock-color`   | `primary-color`      | Lock color when unlocked                               |
 | `restriction-blocked-lock-color`   | `error-state-color`  | Lock color when card is blocked                        |
-| `restriction-invalid--color`       | `error-state-color`  | Lock color after an invalid attempt to unlock          |
+| `restriction-invalid-lock-color`       | `error-state-color`  | Lock color after an invalid attempt to unlock          |
 | `restriction-lock-margin-left`     | `0px`                | Manually set the left margin of the lock icon (right for RTL)          |
 | `restriction-lock-margin-top`     | `0px`                | Manually set the top margin of the lock icon          |
 | `restriction-lock-row-margin-left` | `24px`               | Manually set the left margin of the lock icon in a row (right for RTL) |

@@ -77,8 +77,28 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       return true;
     }
 
-    if (this._hass && this._config && this._config.condition && this._config.condition.entity) {
-      return oldHass.states[this._config.condition.entity] !== this._hass.states[this._config.condition.entity];
+    let entity;
+    if (!this._hass || !this._config) {
+      return false;
+    } else if (this._config.condition && this._config.condition.entity) {
+      entity = this._config.condition.entity;
+      return oldHass.states[entity] !== this._hass.states[entity];
+    } else if (!this._config.restrictions) {
+      return false;
+    } else if (
+      this._config.restrictions.block &&
+      this._config.restrictions.block.condition &&
+      this._config.restrictions.block.condition.entity
+    ) {
+      entity = this._config.restrictions.block.condition.entity;
+      return oldHass.states[entity] !== this._hass.states[entity];
+    } else if (
+      this._config.restrictions.hide &&
+      this._config.restrictions.hide.condition &&
+      this._config.restrictions.hide.condition.entity
+    ) {
+      entity = this._config.restrictions.hide.condition.entity;
+      return oldHass.states[entity] !== this._hass.states[entity];
     } else {
       return false;
     }
@@ -93,8 +113,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       return html``;
     }
 
+    const isBlocked = this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false;
     return html`
-      <div>
+      <div id="mainContainer">
         ${(this._config.exemptions &&
           this._config.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) ||
         (this._config.condition &&
@@ -108,17 +129,27 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                   hasDoubleClick: this._config.action === 'double_tap',
                 })}
                 id="overlay"
-                class="${classMap({
-                  blocked: this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false,
-                })}"
+                class=${classMap({
+                  locked: !Boolean(this._unlocked) && !Boolean(isBlocked),
+                  blocked: Boolean(isBlocked),
+                  'has-row': Boolean(this._config.row),
+                  'fill-available': true,
+                })}
               >
-                <ha-icon
-                  icon="${this._unlocked ? this._config.unlocked_icon! : this._config.locked_icon!}"
-                  id="lock"
-                  class="${classMap({
-                    row: Boolean(this._config.row),
-                  })}"
-                ></ha-icon>
+                <div id="subContainer" class=${classMap({ 'fill-available': true })}>
+                  <ha-icon
+                    icon=${Boolean(this._unlocked)
+                      ? this._config.unlocked_icon
+                        ? this._config.unlocked_icon
+                        : this._config.locked_icon
+                      : this._config.locked_icon}
+                    id="lock"
+                    class=${classMap({
+                      'icon-blocked': Boolean(isBlocked),
+                      'icon-in-row': Boolean(this._config.row),
+                    })}
+                  ></ha-icon>
+                </div>
               </div>
             `}
         ${this.renderCard(this._config.card)}
@@ -145,7 +176,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       element.hass = this._hass;
 
       return html`
-        <div id="card" class=${classMap({ 'card-row': this._config.row === true })}>
+        <div id="card" class=${classMap({ 'is-row': Boolean(this._config.row) })}>
           ${element}
         </div>
       `;
@@ -176,6 +207,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
 
     const lock = this.shadowRoot.getElementById('lock') as LitElement;
+    const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
 
     if (this._config.restrictions) {
       if (this._config.restrictions.block && this._matchRestriction(this._config.restrictions.block)) {
@@ -183,11 +215,11 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           alert(this._config.restrictions.block.text);
         }
 
-        lock.classList.add('invalid');
+        lock.classList.add('icon-invalid');
+        overlay.classList.add('overlay-invalid');
         window.setTimeout(() => {
-          if (lock) {
-            lock.classList.remove('invalid');
-          }
+          lock.classList.remove('icon-invalid');
+          overlay.classList.remove('overlay-invalid');
         }, 3000);
         return;
       }
@@ -222,7 +254,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           }
 
         if (conditionString || conditionArray) {
-          lock.classList.add('invalid');
+          lock.classList.add('icon-invalid');
+          overlay.classList.add('overlay-invalid');
           this._delay = Boolean(this._config.restrictions.pin.retry_delay);
           if (this._config.restrictions.pin.max_retries) {
             this._retries++;
@@ -233,9 +266,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
             window.setTimeout(
               () => {
-                if (lock) {
-                  lock.classList.remove('invalid');
-                }
+                lock.classList.remove('icon-invalid');
+                overlay.classList.remove('overlay-invalid');
                 this._retries = 0;
                 this._maxed = false;
                 this._delay = false;
@@ -249,8 +281,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
               () => {
                 this._delay = false;
 
-                if (lock && !this._maxed) {
-                  lock.classList.remove('invalid');
+                if (!this._maxed) {
+                  lock.classList.remove('icon-invalid');
+                  overlay.classList.remove('overlay-invalid');
                 }
               },
               this._config.restrictions.pin.retry_delay ? this._config.restrictions.pin.retry_delay * 1000 : 3000,
@@ -270,21 +303,18 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
     }
 
-    const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
+    this._unlocked = true;
     overlay.style.setProperty('pointer-events', 'none');
-    if (this._config.unlocked_icon) {
-      this._unlocked = true;
-    } else {
-      lock.classList.add('hidden');
-    }
+    lock.classList.add('icon-hidden');
+    overlay.classList.add('unlocked');
+    overlay.classList.remove('locked');
+
     window.setTimeout(() => {
+      this._unlocked = false;
       overlay.style.setProperty('pointer-events', '');
-      if (this._config?.unlocked_icon) {
-        this._unlocked = false;
-      }
-      if (lock) {
-        lock.classList.remove('hidden');
-      }
+      lock.classList.remove('icon-hidden');
+      overlay.classList.remove('unlocked');
+      overlay.classList.add('locked');
     }, this._config.duration * 1000);
   }
 
@@ -292,86 +322,87 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     return css`
       :host {
         position: relative;
-        --regular-lock-color: var(--restriction-regular-lock-color, var(--primary-text-color, #212121));
-        --success-lock-color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4));
-        --blocked-lock-color: var(--restriction-blocked-lock-color, var(--error-state-color, #db4437));
-        --invalid-lock-color: var(--restriction-invalid--color, var(--error-state-color, #db4437));
-        --lock-margin-left: var(--restriction-lock-margin-left, 0px);
-        --lock-row-margin-left: var(--restriction-lock-row-margin-left, 24px);
-        --lock-row-margin-top: var(--restriction-lock-row-margin-top, 0px);
         --lock-icon-size: var(--restriction-lock-icon-size, var(--mdc-icon-size, 24px));
-        --lock-opacity: var(--restriction-lock-opacity, 0.5);
       }
-      div:has(#card) {
+      #mainContainer {
         height: 100%;
         position: relative;
       }
       ha-icon {
         --mdc-icon-size: var(--lock-icon-size);
       }
-      #overlay {
-        padding: 8px 7px;
+      .fill-available {
         position: absolute;
         left: 0;
         right: 0;
         top: 0;
         bottom: 0;
+      }
+      #overlay {
         z-index: 1;
-        color: var(--regular-lock-color);
+      }
+      #subContainer {
+        padding: 8px 7px;
+        border-radius: var(--ha-card-border-radius, 12px);
         background: var(--restriction-overlay-background, unset);
       }
-      #overlay:has(.hidden) {
+      #overlay.has-row #subContainer {
+        border-radius: var(--restriction-overlay-row-border-radius, 0) !important;
+        border: var(--restriction-overlay-row-outline, none);
+      }
+      #overlay.unlocked #subContainer {
+        border-color: transparent;
         opacity: 0 !important;
-        transition: opacity 2s linear;
+        transition: border-color 2s, opacity 2s linear;
       }
-      #overlay:not(:has(.hidden)):has(+ #card.card-row) {
-        outline: var(--restriction-overlay-row-outline, none);
-        border-radius: var(--restriction-overlay-row-border-radius, 0);
+      #overlay.blocked #subContainer {
+        background: var(--restriction-overlay-background-blocked, unset) !important;
       }
-      #overlay:not(:has(+ #card.card-row)) {
-        border-radius: var(--ha-card-border-radius, 12px);
-      }
-      #overlay.blocked {
-        background: var(--restriction-overlay-background-blocked, unset);
-      }
-      #overlay.blocked:has(+ #card.card-row) {
-        outline: var(--restriction-overlay-row-outline-blocked, none);
+      #overlay.has-row.blocked #subContainer {
+        border: var(--restriction-overlay-row-outline-blocked, none);
+        border-radius: var(--restriction-overlay-row-border-radius, 0) !important;
       }
       #card {
         height: 100%;
       }
-      #overlay:not(:has(.hidden)) {
-        overflow: clip;
+      #overlay:not(.unlocked) {
+        overflow: hidden;
       }
-      #overlay:not(:has(.hidden)) + #card.card-row {
-        overflow: clip;
-      }
-      .blocked {
-        color: var(--blocked-lock-color) !important;
+      #overlay:not(.unlocked) + #card.is-row {
+        overflow: hidden;
       }
       #lock {
-        margin-inline-start: var(--lock-margin-left);
-        opacity: var(--lock-opacity);
-      }
-      .row {
-        margin-inline-start: var(--lock-row-margin-left) !important;
-        margin-top: var(--lock-row-margin-top) !important;
+        margin-inline-start: var(--restriction-lock-margin-left, 0px);
+        margin-top: var(--restriction-lock-margin-top, 0px);
+        opacity: var(--restriction-lock-opacity, 0.5);
+        color: var(--restriction-regular-lock-color, var(--primary-text-color, #212121));
         position: inherit;
       }
-      .hidden {
-        visibility: hidden;
+      .icon-in-row {
+        margin-inline-start: var(--restriction-lock-row-margin-left, 24px) !important;
+        margin-top: var(--restriction-lock-row-margin-top, 0px) !important;
+      }
+      .icon-hidden {
         opacity: 0 !important;
         transition: visibility 0s 2s, opacity 2s linear;
-        color: var(--success-lock-color);
+      }
+      .icon-unlocked {
+        color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4)) !important;
+      }
+      .icon-blocked {
+        color: var(--restriction-blocked-lock-color, var(--error-state-color, #db4437)) !important;
+      }
+      .icon-invalid {
+        animation: blinker 1s linear infinite;
+        color: var(--restriction-invalid-lock-color, var(--error-state-color, #db4437)) !important;
+      }
+      .overlay-invalid {
+        animation: blinker 1s linear infinite;
       }
       @keyframes blinker {
         50% {
           opacity: 0;
         }
-      }
-      .invalid {
-        animation: blinker 1s linear infinite;
-        color: var(--invalid-lock-color);
       }
     `;
   }
