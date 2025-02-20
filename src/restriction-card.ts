@@ -368,6 +368,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       #lock {
         margin-inline-start: var(--restriction-lock-margin-left, 0px);
+        margin-top: var(--restriction-lock-margin-top, 0px);
         opacity: var(--restriction-lock-opacity, 0.5);
         color: var(--restriction-regular-lock-color, var(--primary-text-color, #212121));
         position: inherit;
