@@ -207,6 +207,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
 
     const lock = this.shadowRoot.getElementById('lock') as LitElement;
+    const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
 
     if (this._config.restrictions) {
       if (this._config.restrictions.block && this._matchRestriction(this._config.restrictions.block)) {
@@ -215,8 +216,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         }
 
         lock.classList.add('icon-invalid');
+        overlay.classList.add('overlay-invalid');  /////////////////////////////////////////////////////////////
         window.setTimeout(() => {
           lock.classList.remove('icon-invalid');
+          overlay.classList.remove('overlay-invalid');  /////////////////////////////////////////////////////////////
         }, 3000);
         return;
       }
@@ -252,6 +255,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
         if (conditionString || conditionArray) {
           lock.classList.add('icon-invalid');
+          overlay.classList.add('overlay-invalid');  ///////////////////////////////////////////////////////
           this._delay = Boolean(this._config.restrictions.pin.retry_delay);
           if (this._config.restrictions.pin.max_retries) {
             this._retries++;
@@ -263,6 +267,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
             window.setTimeout(
               () => {
                 lock.classList.remove('icon-invalid');
+                overlay.classList.remove('overlay-invalid');  ////////////////////////////////////////////////////////
                 this._retries = 0;
                 this._maxed = false;
                 this._delay = false;
@@ -278,6 +283,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
                 if (!this._maxed) {
                   lock.classList.remove('icon-invalid');
+                  overlay.classList.remove('overlay-invalid');  ////////////////////////////////////////////////////////
                 }
               },
               this._config.restrictions.pin.retry_delay ? this._config.restrictions.pin.retry_delay * 1000 : 3000,
@@ -298,7 +304,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
 
     this._unlocked = true;
-    const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
     overlay.style.setProperty('pointer-events', 'none');
     lock.classList.add('icon-hidden');
     overlay.classList.add('unlocked');
@@ -390,6 +395,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       .icon-invalid {
         animation: blinker 1s linear infinite;
         color: var(--restriction-invalid-lock-color, var(--error-state-color, #db4437)) !important;
+      }
+      .overlay-invalid {
+        animation: blinker 1s linear infinite;
       }
       @keyframes blinker {
         50% {
