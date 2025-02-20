@@ -78,7 +78,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
 
     let entity;
-    if !(this._hass && this._config) {
+    if (!this._hass || !this._config) {
       return false;
     } else if (this._config.condition && this._config.condition.entity) {
       entity = this._config.condition.entity;
