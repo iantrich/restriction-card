@@ -216,10 +216,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         }
 
         lock.classList.add('icon-invalid');
-        overlay.classList.add('overlay-invalid');  /////////////////////////////////////////////////////////////
+        overlay.classList.add('overlay-invalid');
         window.setTimeout(() => {
           lock.classList.remove('icon-invalid');
-          overlay.classList.remove('overlay-invalid');  /////////////////////////////////////////////////////////////
+          overlay.classList.remove('overlay-invalid');
         }, 3000);
         return;
       }
@@ -255,7 +255,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
         if (conditionString || conditionArray) {
           lock.classList.add('icon-invalid');
-          overlay.classList.add('overlay-invalid');  ///////////////////////////////////////////////////////
+          overlay.classList.add('overlay-invalid');
           this._delay = Boolean(this._config.restrictions.pin.retry_delay);
           if (this._config.restrictions.pin.max_retries) {
             this._retries++;
@@ -267,7 +267,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
             window.setTimeout(
               () => {
                 lock.classList.remove('icon-invalid');
-                overlay.classList.remove('overlay-invalid');  ////////////////////////////////////////////////////////
+                overlay.classList.remove('overlay-invalid');
                 this._retries = 0;
                 this._maxed = false;
                 this._delay = false;
@@ -283,7 +283,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
                 if (!this._maxed) {
                   lock.classList.remove('icon-invalid');
-                  overlay.classList.remove('overlay-invalid');  ////////////////////////////////////////////////////////
+                  overlay.classList.remove('overlay-invalid');
                 }
               },
               this._config.restrictions.pin.retry_delay ? this._config.restrictions.pin.retry_delay * 1000 : 3000,
