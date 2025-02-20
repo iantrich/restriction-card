@@ -385,8 +385,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       .icon-hidden {
         opacity: 0 !important;
         transition: visibility 0s 2s, opacity 2s linear;
-      }
-      .icon-unlocked {
         color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4)) !important;
       }
       .icon-blocked {
