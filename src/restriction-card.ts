@@ -115,9 +115,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
     const isBlocked = this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false;
     return html`
-      <div id="mainContainer"
-        style=${ifDefined(styleMap(this._config.css_variables || {}))}
-      >
+      <div id="mainContainer" style=${ifDefined(styleMap(this._config.css_variables || {}))}>
         ${(this._config.exemptions &&
           this._config.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) ||
         (this._config.condition &&
