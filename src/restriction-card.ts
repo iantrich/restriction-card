@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TemplateResult, customElement, LitElement, property, html, CSSResult, css, PropertyValues } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
-import { ifDefined } from "lit/directives/if-defined.js";
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { RestrictionCardConfig } from './types';
 import { HomeAssistant, LovelaceCard, computeCardSize, LovelaceCardConfig, evaluateFilter } from 'custom-card-helpers';
 import { CARD_VERSION } from './const';
