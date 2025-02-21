@@ -139,7 +139,7 @@ Note: it is not recommended to set negative values for `*-lock-*-margin-*` varia
 ## css_variables option
 
 The `css_variables` option can be used to override default values of supported [theme variables](#theme-variables).
-Alternatively, these variables may be defined in a custom Frontend theme or by [card-mod](https://github.com/thomasloven/lovelace-card-mod) locally.
+Alternatively, these variables can be defined in a custom Frontend theme or by [card-mod](https://github.com/thomasloven/lovelace-card-mod) locally.
 Each entry in `css_variables` option must represent a "name: value" pair for a variable which should be overridden where `name` is a name of a variable prefixed by `--`, see an example below:
 ```
 css_variables:
