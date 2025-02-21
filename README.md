@@ -50,6 +50,7 @@ resources:
 | action        | string  | **Optional** | Action type to trigger the unlock. Options are `tap`, `double_tap`, or `hold`. Default is `tap` |
 | locked_icon   | string  | **Optional** | Icon to show when locked. Default is `mdi:lock-outline`                                         |
 | unlocked_icon | string  | **Optional** | Icon to show when unlocked instead of fading the icon away                                      |
+| css_variables | map     | **Optional** | Set to override default theme variables. See [css_variables option](#css_variables-option)    |
 
 ## Restrictions options
 
@@ -112,8 +113,8 @@ resources:
 
 ## Theme variables
 
-The following variables are available and can be set in your theme to change the appearance of the lock.
-Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
+The following variables are available and can be set in your theme to change the appearance of the restriction-card.
+Colors can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
 
 | name                               | Default              | Description                                            |
 | ---------------------------------- | -------------------- | ------------------------------------------------------ |
@@ -134,6 +135,18 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 | `restriction-overlay-row-border-radius` | `0`                  | Border radius for an overlay in a row                   |
 
 Note: it is not recommended to set negative values for `*-lock-*-margin-*` variables to prevent a "lock" icon to be clipped.
+
+## css_variables option
+
+The `css_variables` option can be used to override default values of supported [theme variables](#theme-variables).
+Alternatively, these variables can be defined in a custom Frontend theme or by [card-mod](https://github.com/thomasloven/lovelace-card-mod) locally.
+Each entry in `css_variables` option must represent a "name: value" pair for a variable which should be overridden where `name` is a name of a variable prefixed by `--`, see an example below:
+```
+css_variables:
+  --restriction-regular-lock-color: red
+  --restriction-success-lock-color: cyan
+```
+Note: jinja templates are not supported, use card-mod if you need templates.
 
 ## Example configurations
 

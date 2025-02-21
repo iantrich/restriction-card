@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TemplateResult, customElement, LitElement, property, html, CSSResult, css, PropertyValues } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
-
+import { styleMap } from 'lit-html/directives/style-map.js';
+import { ifDefined } from 'lit-html/directives/if-defined.js';
 import { RestrictionCardConfig } from './types';
 import { HomeAssistant, LovelaceCard, computeCardSize, LovelaceCardConfig, evaluateFilter } from 'custom-card-helpers';
 import { CARD_VERSION } from './const';
@@ -115,7 +116,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
     const isBlocked = this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false;
     return html`
-      <div id="mainContainer">
+      <div id="mainContainer" style=${ifDefined(styleMap(this._config.css_variables || {}))}>
         ${(this._config.exemptions &&
           this._config.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) ||
         (this._config.condition &&
@@ -322,7 +323,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     return css`
       :host {
         position: relative;
-        --lock-icon-size: var(--restriction-lock-icon-size, var(--mdc-icon-size, 24px));
       }
       #mainContainer {
         height: 100%;
@@ -345,6 +345,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         padding: 8px 7px;
         border-radius: var(--ha-card-border-radius, 12px);
         background: var(--restriction-overlay-background, unset);
+        --lock-icon-size: var(--restriction-lock-icon-size, var(--mdc-icon-size, 24px));
       }
       #overlay.has-row #subContainer {
         border-radius: var(--restriction-overlay-row-border-radius, 0) !important;
