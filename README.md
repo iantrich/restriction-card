@@ -41,17 +41,18 @@ resources:
 | Name          | Type    | Requirement  | Description                                                                                     |
 | ------------- | ------- | ------------ | ----------------------------------------------------------------------------------------------- |
 | type          | string  | **Required** | `custom:restriction-card`                                                                       |
-| card          | map     | **Required** | Card to render within `restriction-card`.                                                       |
-| restrictions  | map     | **Optional** | Additional restrictions. See [Restrictions Options](#restrictions-options).                     |
-| exemptions    | list    | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                         |
-| condition     | map     | **Optional** | Conditional object to make lock active. See [Condition Options](#condition-options).            |
+| card          | map     | **Required** | Card to render within `restriction-card`                                                        |
+| restrictions  | map     | **Optional** | Additional restrictions. See [Restrictions Options](#restrictions-options)                      |
+| exemptions    | list    | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options)                          |
+| condition     | map     | **Optional** | Conditional object to make lock active. See [Condition Options](#condition-options)             |
 | row           | boolean | **Optional** | Set to true to give a default `margin:left: 24px`                                               |
 | duration      | number  | **Optional** | Duration of unlock in seconds. Default is `5`                                                   |
 | action        | string  | **Optional** | Action type to trigger the unlock. Options are `tap`, `double_tap`, or `hold`. Default is `tap` |
 | locked_icon   | string  | **Optional** | Icon to show when locked. Default is `mdi:lock-outline`                                         |
 | unlocked_icon | string  | **Optional** | Icon to show when unlocked instead of fading the icon away                                      |
+| css_variables | string  | **Optional** | Set to override default theme variables. See [css_variables example](#css_variables-example)    |
 
-## Restrictions Options
+## Restrictions options
 
 | Name    | Type | Requirement  | Description                                                               |
 | ------- | ---- | ------------ | ------------------------------------------------------------------------- |
@@ -60,7 +61,7 @@ resources:
 | block   | map  | **Optional** | Block interaction restriction. See [Block Options](#block-options).       |
 | hide    | map  | **Optional** | Hide card restriction. See [Hide Options](#hide-options)..                |
 
-## Confirm Options
+## Confirm options
 
 | Name       | Type   | Requirement  | Description                                                                                 |
 | ---------- | ------ | ------------ | ------------------------------------------------------------------------------------------- |
@@ -68,7 +69,7 @@ resources:
 | exemptions | list   | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                     |
 | condition  | map    | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options). |
 
-## Pin Options
+## Pin options
 
 | Name              | Type   | Requirement  | Description                                                                                                               |
 | ----------------- | ------ | ------------ | ------------------------------------------------------------------------------------------------------------------------- |
@@ -80,7 +81,7 @@ resources:
 | max_retries       | number | **Optional** | Number of consecutive invalid retries allowed before blocking for the `max_retries_delay` seconds. Default is `unlimited` |
 | max_retries_delay | number | **Optional** | Number of seconds to block attempts to unlock after the `max_retries` has been reached                                    |
 
-## Block Options
+## Block options
 
 | Name       | Type   | Requirement  | Description                                                                                 |
 | ---------- | ------ | ------------ | ------------------------------------------------------------------------------------------- |
@@ -88,20 +89,20 @@ resources:
 | exemptions | list   | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                     |
 | condition  | map    | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options). |
 
-## Hide Options
+## Hide options
 
 | Name       | Type | Requirement  | Description                                                                                 |
 | ---------- | ---- | ------------ | ------------------------------------------------------------------------------------------- |
 | exemptions | list | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                     |
 | condition  | map  | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options). |
 
-## Exemption Options
+## Exemption options
 
 | Name | Type   | Requirement  | Description                                                |
 | ---- | ------ | ------------ | ---------------------------------------------------------- |
 | user | string | **Required** | User id to exempt. This is found in the user profile `ID`. |
 
-## Condition Options
+## Condition options
 
 | Name      | Type   | Requirement  | Description                                                                                         |
 | --------- | ------ | ------------ | --------------------------------------------------------------------------------------------------- |
@@ -110,10 +111,10 @@ resources:
 | attribute | string | **Optional** | Attribute of the entity to use instead of the state.                                                |
 | operator  | string | **Optional** | Operator to use in the comparison. Can be `==`,`<=`,`<`,`>=`,`>`,`!=`, or `regex`. Default is `==`. |
 
-## Theme Variables
+## Theme variables
 
-The following variables are available and can be set in your theme to change the appearance of the lock.
-Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
+The following variables are available and can be set in your theme to change the appearance of the restriction-card.
+Colors can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
 
 | name                               | Default              | Description                                            |
 | ---------------------------------- | -------------------- | ------------------------------------------------------ |
@@ -135,10 +136,25 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 
 Note: it is not recommended to set negative values for `*-lock-*-margin-*` variables to prevent a "lock" icon to be clipped.
 
+## css_variables example
 
-## Example Configurations
+The `css_variables` can be used to override default values of supported [theme variables](#theme-variables).
+Alternatively, these variables may be defined in a custom Frontend theme or by [card-mod](https://github.com/thomasloven/lovelace-card-mod) locally.
+A value of `css_variables` option must represent a string with values of supported theme variables, each value ended with a semicolon:
+```
+css_variables: "--restriction-regular-lock-color: red;--restriction-success-lock-color;"
+```
+Yaml-multiline notation can be used for long values:
+```
+css_variables: >-
+  --restriction-regular-lock-color: red;
+  --restriction-success-lock-color: cyan;
+```
+Jinja templates are not supported, use card-mod if you need templates.
 
-Simple Lock example
+## Example configurations
+
+Simple lock example
 
 ![lock](lock.gif)
 
@@ -275,7 +291,7 @@ Notes:
 
 ---
 
-Special Consideration for Input Selects:
+Special consideration for `input_select` entities:
 
 If you find that the restriction card is blocking something you don't want blocked like an input select, try adjusting the z-index using mod-card
 ```
