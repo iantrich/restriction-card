@@ -50,7 +50,7 @@ resources:
 | action        | string  | **Optional** | Action type to trigger the unlock. Options are `tap`, `double_tap`, or `hold`. Default is `tap` |
 | locked_icon   | string  | **Optional** | Icon to show when locked. Default is `mdi:lock-outline`                                         |
 | unlocked_icon | string  | **Optional** | Icon to show when unlocked instead of fading the icon away                                      |
-| css_variables | string  | **Optional** | Set to override default theme variables. See [css_variables example](#css_variables-example)    |
+| css_variables | map     | **Optional** | Set to override default theme variables. See [css_variables option](#css_variables-option)    |
 
 ## Restrictions options
 
@@ -136,21 +136,17 @@ Colors can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basica
 
 Note: it is not recommended to set negative values for `*-lock-*-margin-*` variables to prevent a "lock" icon to be clipped.
 
-## css_variables example
+## css_variables option
 
-The `css_variables` can be used to override default values of supported [theme variables](#theme-variables).
+The `css_variables` option can be used to override default values of supported [theme variables](#theme-variables).
 Alternatively, these variables may be defined in a custom Frontend theme or by [card-mod](https://github.com/thomasloven/lovelace-card-mod) locally.
-A value of `css_variables` option must represent a string with values of supported theme variables, each value ended with a semicolon:
+Each entry in `css_variables` option must represent a "name: value" pair for a variable which should be overridden where `name` is a name a variable w/o leading `--` dashes, with `_` undescores instead other `-` dashes, see an example below:
 ```
-css_variables: "--restriction-regular-lock-color: red;--restriction-success-lock-color;"
+css_variables:
+  restriction_regular_lock_color: red
+  restriction_success_lock_color: cyan
 ```
-Yaml-multiline notation can be used for long values:
-```
-css_variables: >-
-  --restriction-regular-lock-color: red;
-  --restriction-success-lock-color: cyan;
-```
-Jinja templates are not supported, use card-mod if you need templates.
+Note: jinja templates are not supported, use card-mod if you need templates.
 
 ## Example configurations
 
