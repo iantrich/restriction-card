@@ -140,11 +140,11 @@ Note: it is not recommended to set negative values for `*-lock-*-margin-*` varia
 
 The `css_variables` option can be used to override default values of supported [theme variables](#theme-variables).
 Alternatively, these variables may be defined in a custom Frontend theme or by [card-mod](https://github.com/thomasloven/lovelace-card-mod) locally.
-Each entry in `css_variables` option must represent a "name: value" pair for a variable which should be overridden where `name` is a name a variable w/o leading `--` dashes (like these varaibles can be defined in a custom theme), see an example below:
+Each entry in `css_variables` option must represent a "name: value" pair for a variable which should be overridden where `name` is a name a variable, see an example below:
 ```
 css_variables:
-  restriction-regular-lock-color: red
-  restriction-success-lock-color: cyan
+  --restriction-regular-lock-color: red
+  --restriction-success-lock-color: cyan
 ```
 Note: jinja templates are not supported, use card-mod if you need templates.
 
