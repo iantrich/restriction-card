@@ -16,7 +16,7 @@ This card is not to be used as a means to truly protect an instance. Someone wit
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 
-## Minimum Home Assistant Version
+## Minimum Home Assistant version
 
 Home Assistant version 0.110.0 or higher is required as of release 1.2.0 of restriction-card
 
@@ -42,9 +42,9 @@ resources:
 | ------------- | ------- | ------------ | ----------------------------------------------------------------------------------------------- |
 | type          | string  | **Required** | `custom:restriction-card`                                                                       |
 | card          | map     | **Required** | Card to render within `restriction-card`                                                        |
-| restrictions  | map     | **Optional** | Additional restrictions. See [Restrictions Options](#restrictions-options)                      |
-| exemptions    | list    | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options)                          |
-| condition     | map     | **Optional** | Conditional object to make lock active. See [Condition Options](#condition-options)             |
+| restrictions  | map     | **Optional** | Additional restrictions. See [Restrictions options](#restrictions-options)                      |
+| exemptions    | list    | **Optional** | List of exemption objects. See [Exemption options](#exemption-options)                          |
+| condition     | map     | **Optional** | Conditional object to make lock active. See [Condition options](#condition-options)             |
 | row           | boolean | **Optional** | Set to true to give a default `margin:left: 24px`                                               |
 | duration      | number  | **Optional** | Duration of unlock in seconds. Default is `5`                                                   |
 | action        | string  | **Optional** | Action type to trigger the unlock. Options are `tap`, `double_tap`, or `hold`. Default is `tap` |
@@ -56,18 +56,18 @@ resources:
 
 | Name    | Type | Requirement  | Description                                                               |
 | ------- | ---- | ------------ | ------------------------------------------------------------------------- |
-| confirm | map  | **Optional** | Confirmation unlock restriction. See [Confirm Options](#confirm-options). |
-| pin     | map  | **Optional** | Pin code restriction. See [Pin Options](#pin-options).                    |
-| block   | map  | **Optional** | Block interaction restriction. See [Block Options](#block-options).       |
-| hide    | map  | **Optional** | Hide card restriction. See [Hide Options](#hide-options)..                |
+| confirm | map  | **Optional** | Confirmation unlock restriction. See [Confirm options](#confirm-options) |
+| pin     | map  | **Optional** | Pin code restriction. See [Pin options](#pin-options)                    |
+| block   | map  | **Optional** | Block interaction restriction. See [Block options](#block-options)       |
+| hide    | map  | **Optional** | Hide card restriction. See [Hide options](#hide-options)                |
 
 ## Confirm options
 
 | Name       | Type   | Requirement  | Description                                                                                 |
 | ---------- | ------ | ------------ | ------------------------------------------------------------------------------------------- |
 | text       | string | **Optional** | Text to display in confirmation dialog                                                      |
-| exemptions | list   | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                     |
-| condition  | map    | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options). |
+| exemptions | list   | **Optional** | List of exemption objects. See [Exemption options](#exemption-options)                     |
+| condition  | map    | **Optional** | Conditional object to make restriction active. See [Condition options](#condition-options) |
 
 ## Pin options
 
@@ -75,8 +75,8 @@ resources:
 | ----------------- | ------ | ------------ | ------------------------------------------------------------------------------------------------------------------------- |
 | code               | string/list  | **Required** | Pin code the user needs to enter to unlock. Could be a list of codes                                                                                |
 | text              | string | **Optional** | Text to display in prompt dialog                                                                                          |
-| exemptions        | list   | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                                                   |
-| condition         | map    | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options).                               |
+| exemptions        | list   | **Optional** | List of exemption objects. See [Exemption options](#exemption-options)                                                   |
+| condition         | map    | **Optional** | Conditional object to make restriction active. See [Condition options](#condition-options)                               |
 | retry_delay       | number | **Optional** | Number of seconds that you want to delay next attempt to unlock. Default is `0`                                           |
 | max_retries       | number | **Optional** | Number of consecutive invalid retries allowed before blocking for the `max_retries_delay` seconds. Default is `unlimited` |
 | max_retries_delay | number | **Optional** | Number of seconds to block attempts to unlock after the `max_retries` has been reached                                    |
@@ -86,30 +86,30 @@ resources:
 | Name       | Type   | Requirement  | Description                                                                                 |
 | ---------- | ------ | ------------ | ------------------------------------------------------------------------------------------- |
 | text       | string | **Optional** | Text to display in alert                                                                    |
-| exemptions | list   | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                     |
-| condition  | map    | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options). |
+| exemptions | list   | **Optional** | List of exemption objects. See [Exemption options](#exemption-options)                     |
+| condition  | map    | **Optional** | Conditional object to make restriction active. See [Condition options](#condition-options) |
 
 ## Hide options
 
 | Name       | Type | Requirement  | Description                                                                                 |
 | ---------- | ---- | ------------ | ------------------------------------------------------------------------------------------- |
-| exemptions | list | **Optional** | List of exemption objects. See [Exemption Options](#exemption-options).                     |
-| condition  | map  | **Optional** | Conditional object to make restriction active. See [Condition Options](#condition-options). |
+| exemptions | list | **Optional** | List of exemption objects. See [Exemption options](#exemption-options)                     |
+| condition  | map  | **Optional** | Conditional object to make restriction active. See [Condition options](#condition-options) |
 
 ## Exemption options
 
 | Name | Type   | Requirement  | Description                                                |
 | ---- | ------ | ------------ | ---------------------------------------------------------- |
-| user | string | **Required** | User id to exempt. This is found in the user profile `ID`. |
+| user | string | **Required** | User id to exempt. This is found in the user profile `ID` |
 
 ## Condition options
 
 | Name      | Type   | Requirement  | Description                                                                                         |
 | --------- | ------ | ------------ | --------------------------------------------------------------------------------------------------- |
-| value     | string | **Required** | String representing the state.                                                                      |
+| value     | string | **Required** | String representing the state                                                                      |
 | entity    | string | **Required** | Entity to use condition and is what also causes the card to update                                  |
-| attribute | string | **Optional** | Attribute of the entity to use instead of the state.                                                |
-| operator  | string | **Optional** | Operator to use in the comparison. Can be `==`,`<=`,`<`,`>=`,`>`,`!=`, or `regex`. Default is `==`. |
+| attribute | string | **Optional** | Attribute of the entity to use instead of the state                                                |
+| operator  | string | **Optional** | Operator to use in the comparison. Can be `==`,`<=`,`<`,`>=`,`>`,`!=`, or `regex`. Default is `==` |
 
 ## Theme variables
 
