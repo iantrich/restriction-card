@@ -265,6 +265,27 @@ Theme file:
   restriction-overlay-row-outline: 1px solid rgba(255,0,0,0.1)
   restriction-overlay-row-outline-blocked: 1px solid rgba(127,127,127,0.1)
 ```
+
+##
+Example with `css_variables`
+
+![изображение](https://github.com/user-attachments/assets/e28a9d6b-db32-48e9-84f8-ab36c4bf5fb5)
+```
+type: entities
+entities:
+  - type: custom:restriction-card
+    row: true
+    css_variables:
+      "--restriction-overlay-background": >-
+        repeating-linear-gradient( -45deg, transparent 0
+        10px,var(--user-restriction-card-mask,rgba(255,0,0,0.07)) 10px 20px)
+      "--restriction-lock-opacity": 0
+      "--restriction-overlay-row-border-radius": 4px
+      "--restriction-overlay-row-outline": 1px solid rgba(255,0,0,0.1)
+    card:
+      entity: switch.test_switch
+```
+
 ##
 Multiple pin codes example
 ```
