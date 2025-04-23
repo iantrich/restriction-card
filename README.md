@@ -312,7 +312,7 @@ Alterations by card-mod:
 
 If an internal card/row's elements have `z-index` > 0, it may cause issues like "an inner card/row is not blocked (fully or partly)".
 
-This may be be fixed by card-mod:
+This may be fixed by card-mod:
 ```
 type: custom:mod-card
 card_mod:
