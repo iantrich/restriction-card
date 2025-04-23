@@ -308,20 +308,29 @@ Notes:
 
 ---
 
-Special consideration for `input_select` entities:
+##
+Alterations by card-mod:
 
-If you find that the restriction card is blocking something you don't want blocked like an input select, try adjusting the z-index using mod-card
+If an internal card/row's elements have `z-index` > 0, it may cause issues like "an inner card/row is not blocked (fully or partly)".
+
+This may be be fixed by card-mod:
 ```
+type: custom:mod-card
+card_mod:
+  style:
+    restriction-card $: |
+      #overlay {
+        z-index: 2 !important;
+      }
 card:
-  type: custom:mod-card
-  card_mod:
-    style: |
-      ha-card {
-        z-index: 7;
-        }
+  type: custom:restriction-card
+  restrictions: ...
   card:
-    type: custom:restriction-card
+    type: alarm-panel
+    entity: alarm_control_panel.xxx
 ```
+In this example the `alarm-panel` card has a "Disarm" button with `z-index: 1` which makes it "not lockable".
+
 
 ## [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
