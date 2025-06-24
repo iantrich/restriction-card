@@ -227,20 +227,26 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
       if (this._config.restrictions.pin && this._matchRestriction(this._config.restrictions.pin)) {
         const isMultiplePins = Array.isArray(this._config.restrictions.pin.code);
-        const regex = /^\d+$/;
-        let codeFormat;
-        if (!isMultiplePins) {
-          const asString = this._config.restrictions.pin.code as string;
-          codeFormat = regex.test(asString) ? 'number' : 'text';
+        let pin;
+        const titleDialog = this._config.restrictions.pin.text || 'Input pin code';
+        if (this._helpers?.showEnterCodeDialog) {
+          const regex = /^\d+$/;
+          let codeFormat;
+          if (!isMultiplePins) {
+            const asString = this._config.restrictions.pin.code as string;
+            codeFormat = regex.test(asString) ? 'number' : 'text';
+          } else {
+            const asArray = this._config.restrictions.pin.code as string[];
+            codeFormat = regex.test(asArray.join('')) ? 'number' : 'text';
+          }
+          pin = await this._helpers.showEnterCodeDialog(lock, {
+            codeFormat: codeFormat,
+            title: titleDialog,
+            submitText: 'OK',
+          });
         } else {
-          const asArray = this._config.restrictions.pin.code as string[];
-          codeFormat = regex.test(asArray.join('')) ? 'number' : 'text';
+          pin = prompt(titleDialog);
         }
-        const pin = await this._helpers.showEnterCodeDialog(lock, {
-          codeFormat: codeFormat,
-          title: this._config.restrictions.pin.text || 'Input pin code',
-          submitText: 'OK',
-        });
 
         let conditionString = false;
         if (!isMultiplePins) conditionString = pin != (this._config.restrictions.pin.code as string);
