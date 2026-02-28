@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { TemplateResult, customElement, LitElement, property, html, CSSResult, css, PropertyValues } from 'lit-element';
-import { classMap } from 'lit-html/directives/class-map';
-import { styleMap } from 'lit-html/directives/style-map.js';
-import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { RestrictionCardConfig } from './types';
+import { TemplateResult, LitElement, html, CSSResult, css, PropertyValues } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
+import { styleMap } from 'lit/directives/style-map.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
+import { RestrictionBaseConfig, RestrictionCardConfig, CardHelpers, WindowWithCardHelpers } from './types';
 import { HomeAssistant, LovelaceCard, computeCardSize, LovelaceCardConfig, evaluateFilter } from 'custom-card-helpers';
 import { CARD_VERSION } from './const';
 import { actionHandler } from './action-handler-directive';
@@ -17,14 +17,20 @@ console.info(
 
 @customElement('restriction-card')
 class RestrictionCard extends LitElement implements LovelaceCard {
-  @property() protected _config?: RestrictionCardConfig;
-  @property() protected _hass?: HomeAssistant;
-  @property() private _helpers?: any;
-  @property() private _unlocked = false;
+  private static readonly _HELPERS_TIMEOUT_MS = 10000;
+  @state() private _config?: RestrictionCardConfig;
+  @state() private _helpers?: CardHelpers;
+  @state() private _unlocked = false;
   private _initialized = false;
   private _delay = false;
   private _maxed = false;
   private _retries = 0;
+  private _hass?: HomeAssistant;
+
+  @property({ attribute: false })
+  get hass(): HomeAssistant | undefined {
+    return this._hass;
+  }
 
   set hass(hass: HomeAssistant) {
     this._hass = hass;
@@ -37,7 +43,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
   }
 
-  public getCardSize(): number {
+  public getCardSize(): number | Promise<number> {
     if (this.shadowRoot) {
       const element = this.shadowRoot.querySelector('#card > *') as LovelaceCard;
       if (element) {
@@ -118,7 +124,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     return html`
       <div id="mainContainer" style=${ifDefined(styleMap(this._config.css_variables || {}))}>
         ${(this._config.exemptions &&
-          this._config.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) ||
+          this._config.exemptions.some((e) =>
+            this._hass && this._hass.user ? e.user === this._hass.user.id : false,
+          )) ||
         (this._config.condition &&
           !evaluateFilter(this._hass.states[this._config.condition.entity], this._config.condition))
           ? ''
@@ -131,7 +139,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 })}
                 id="overlay"
                 class=${classMap({
-                  locked: !Boolean(this._unlocked) && !Boolean(isBlocked),
+                  locked: !this._unlocked && !isBlocked,
                   blocked: Boolean(isBlocked),
                   'has-row': Boolean(this._config.row),
                   'fill-available': true,
@@ -139,7 +147,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
               >
                 <div id="subContainer" class=${classMap({ 'fill-available': true })}>
                   <ha-icon
-                    icon=${Boolean(this._unlocked)
+                    icon=${this._unlocked
                       ? this._config.unlocked_icon
                         ? this._config.unlocked_icon
                         : this._config.locked_icon
@@ -159,14 +167,43 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   private _initialize(): void {
-    if (this.hass === undefined) return;
+    if (this._hass === undefined) return;
     if (this._config === undefined) return;
     if (this._helpers === undefined) return;
     this._initialized = true;
   }
 
   private async loadCardHelpers(): Promise<void> {
-    this._helpers = await (window as any).loadCardHelpers();
+    try {
+      const helpersFactory = await this._waitForCardHelpers(RestrictionCard._HELPERS_TIMEOUT_MS);
+      this._helpers = await Promise.race<CardHelpers>([
+        helpersFactory(),
+        new Promise<CardHelpers>((_, reject) =>
+          setTimeout(
+            () => reject(new Error('Timed out while resolving card helpers')),
+            RestrictionCard._HELPERS_TIMEOUT_MS,
+          ),
+        ),
+      ]);
+      this.requestUpdate();
+    } catch (error) {
+      console.debug('Unable to load Home Assistant card helpers', error);
+    }
+  }
+
+  private async _waitForCardHelpers(timeoutMs: number): Promise<() => Promise<CardHelpers>> {
+    const start = Date.now();
+
+    while (Date.now() - start < timeoutMs) {
+      const maybeLoader = (window as WindowWithCardHelpers).loadCardHelpers;
+      if (typeof maybeLoader === 'function') {
+        return maybeLoader;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    throw new Error('window.loadCardHelpers was not available in time');
   }
 
   private renderCard(config: LovelaceCardConfig): TemplateResult {
@@ -176,27 +213,25 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         : this._helpers.createCardElement(config);
       element.hass = this._hass;
 
-      return html`
-        <div id="card" class=${classMap({ 'is-row': Boolean(this._config.row) })}>
-          ${element}
-        </div>
-      `;
+      return html` <div id="card" class=${classMap({ 'is-row': Boolean(this._config.row) })}>${element}</div> `;
     }
 
     return html``;
   }
 
-  private _matchRestriction(restriction): boolean {
+  private _matchRestriction(restriction?: RestrictionBaseConfig): boolean {
+    if (!this._hass || !restriction) {
+      return false;
+    }
+
     return (
-      this._hass &&
-      restriction &&
       (!restriction.exemptions ||
-        !restriction.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) &&
+        !restriction.exemptions.some((e) => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) &&
       (!restriction.condition || evaluateFilter(this._hass.states[restriction.condition.entity], restriction.condition))
     );
   }
 
-  private _handleAction(ev): void {
+  private _handleAction(ev: CustomEvent<{ action: string }>): void {
     if (this._config?.action === ev.detail.action) {
       this._handleRestriction();
     }
@@ -207,8 +242,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       return;
     }
 
-    const lock = this.shadowRoot.getElementById('lock') as LitElement;
-    const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
+    const lock = this.shadowRoot.getElementById('lock');
+    const overlay = this.shadowRoot.getElementById('overlay');
+
+    if (!lock || !overlay) {
+      return;
+    }
 
     if (this._config.restrictions) {
       if (this._config.restrictions.block && this._matchRestriction(this._config.restrictions.block)) {
@@ -231,7 +270,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         const titleDialog = this._config.restrictions.pin.text || 'Input pin code';
         if (this._helpers?.showEnterCodeDialog) {
           const regex = /^\d+$/;
-          let codeFormat;
+          let codeFormat: 'number' | 'text';
           if (!isMultiplePins) {
             const asString = this._config.restrictions.pin.code as string;
             codeFormat = regex.test(asString) ? 'number' : 'text';
@@ -360,7 +399,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       #overlay.unlocked #subContainer {
         border-color: transparent;
         opacity: 0 !important;
-        transition: border-color 2s, opacity 2s linear;
+        transition:
+          border-color 2s,
+          opacity 2s linear;
       }
       #overlay.blocked #subContainer {
         background: var(--restriction-overlay-background-blocked, unset) !important;
@@ -391,7 +432,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       .icon-hidden {
         opacity: 0 !important;
-        transition: visibility 0s 2s, opacity 2s linear;
+        transition:
+          visibility 0s 2s,
+          opacity 2s linear;
         color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4)) !important;
       }
       .icon-blocked {

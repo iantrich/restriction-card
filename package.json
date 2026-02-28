@@ -1,6 +1,8 @@
 {
   "name": "restriction-card",
-  "version": "1.2.9",
+  "type": "module",
+  "version": "2.0.0",
+  "packageManager": "yarn@4.12.0",
   "description": "Lovelace restriction-card",
   "keywords": [
     "home-assistant",
@@ -16,36 +18,40 @@
   "author": "Ian Richardson <iantrich@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "custom-card-helpers": "^1.6.4",
-    "home-assistant-js-websocket": "^4.4.0",
-    "lit-element": "^2.3.1",
-    "lit-html": "^1.2.1"
+    "custom-card-helpers": "2.0.0",
+    "home-assistant-js-websocket": "9.6.0",
+    "lit": "^3.3.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.3",
-    "@babel/plugin-proposal-class-properties": "^7.10.1",
-    "@babel/plugin-proposal-decorators": "^7.10.3",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
-    "eslint": "^6.6.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^1.18.2",
-    "rollup": "^1.26.0",
-    "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-serve": "^1.0.1",
-    "rollup-plugin-terser": "^5.1.2",
-    "rollup-plugin-typescript2": "^0.24.3",
-    "rollup-plugin-uglify": "^6.0.3",
-    "typescript": "^3.9.5"
+    "@rollup/plugin-commonjs": "^26.0.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@types/jsdom": "^28",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "esbuild": "^0.20.2",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "jsdom": "^28.1.0",
+    "prettier": "^3.8.1",
+    "rollup": "^4.20.0",
+    "rollup-plugin-esbuild": "^6.2.1",
+    "rollup-plugin-serve": "^1.1.1",
+    "tslib": "^2.6.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "scripts": {
     "start": "rollup -c rollup.config.dev.js --watch",
-    "build": "npm run lint && npm run rollup",
-    "lint": "eslint src/*.ts",
-    "rollup": "rollup -c"
+    "build": "yarn clean && yarn lint && yarn test && yarn rollup",
+    "clean": "rm -rf dist",
+    "lint": "eslint src/**/*.ts",
+    "rollup": "rollup -c",
+    "test": "vitest run",
+    "test:watch": "vitest"
   }
 }
