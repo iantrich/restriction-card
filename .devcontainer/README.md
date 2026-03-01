@@ -1,6 +1,6 @@
 # Home Assistant Custom Card - Dev Container Setup
 
-This directory contains the development container configuration for building and testing the config-template-card custom card for Home Assistant.
+This directory contains the development container configuration for building and testing the restriction-card custom card for Home Assistant.
 
 ## Setup Instructions
 

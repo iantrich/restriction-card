@@ -74,9 +74,11 @@ describe('restriction-card shouldUpdate', () => {
         value: 'on',
       },
     };
-    card._hass = createHass('on');
 
-    expect(card.shouldUpdate(changedProps([['_hass', createHass('off')]]))).toBe(true);
+    const previousHass = createHass('on');
+    (card as RestrictionCardElementForTest & { hass?: HomeAssistant }).hass = createHass('off');
+
+    expect(card.shouldUpdate(changedProps([['hass', previousHass]]))).toBe(true);
   });
 
   it('returns true when block restriction condition entity state changed', () => {
@@ -93,9 +95,9 @@ describe('restriction-card shouldUpdate', () => {
         },
       },
     };
-    card._hass = createHass('on');
+    card._hass = createHass('off');
 
-    expect(card.shouldUpdate(changedProps([['_hass', createHass('off')]]))).toBe(true);
+    expect(card.shouldUpdate(changedProps([['hass', createHass('on')]]))).toBe(true);
   });
 
   it('returns true when hide restriction condition entity state changed', () => {
@@ -112,9 +114,9 @@ describe('restriction-card shouldUpdate', () => {
         },
       },
     };
-    card._hass = createHass('on');
+    card._hass = createHass('off');
 
-    expect(card.shouldUpdate(changedProps([['_hass', createHass('off')]]))).toBe(true);
+    expect(card.shouldUpdate(changedProps([['hass', createHass('on')]]))).toBe(true);
   });
 
   it('returns false when watched entity object did not change', () => {
@@ -130,6 +132,6 @@ describe('restriction-card shouldUpdate', () => {
     };
     card._hass = createHassWithEntityState(sameStateObject);
 
-    expect(card.shouldUpdate(changedProps([['_hass', createHassWithEntityState(sameStateObject)]]))).toBe(false);
+    expect(card.shouldUpdate(changedProps([['hass', createHassWithEntityState(sameStateObject)]]))).toBe(false);
   });
 });

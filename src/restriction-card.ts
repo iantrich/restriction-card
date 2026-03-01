@@ -87,14 +87,18 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       throw new Error('A pin code is required for pin restrictions');
     }
 
+    const legacyDelay = (config as { delay?: unknown }).delay;
+    const rawDuration = config.duration ?? legacyDelay ?? 5;
+    const coercedDuration = Number(rawDuration);
+
     this._config = {
-      duration: 5,
+      duration: Number.isFinite(coercedDuration) && coercedDuration > 0 ? coercedDuration : 5,
       action: 'tap',
       locked_icon: 'mdi:lock-outline',
       ...config,
     };
-    // Coerce duration to a number to guard against YAML string values
-    this._config.duration = Number(this._config.duration);
+    // Keep validated duration in case YAML input is null/blank/invalid
+    this._config.duration = Number.isFinite(coercedDuration) && coercedDuration > 0 ? coercedDuration : 5;
     // Clear cached element so it is rebuilt with the new config
     this._cardElement = undefined;
 
