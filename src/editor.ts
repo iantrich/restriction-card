@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css } from 'lit';
 import { HomeAssistant, fireEvent, LovelaceCardEditor, LovelaceCardConfig } from 'custom-card-helpers';
-import { customElement, property, state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import {
   RestrictionCardConfig,
   ConditionConfig,
@@ -25,7 +25,6 @@ const OPERATORS = ['==', '!=', '<', '<=', '>', '>=', 'regex'] as const;
 // Editor element
 // ---------------------------------------------------------------------------
 
-@customElement('restriction-card-editor')
 export class RestrictionCardEditor extends LitElement implements LovelaceCardEditor {
   private _hass!: HomeAssistant;
 
@@ -210,8 +209,8 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
           select: {
             options: [
               { value: 'tap', label: 'Tap' },
-              { value: 'hold', label: 'Hold' },
               { value: 'double_tap', label: 'Double tap' },
+              { value: 'hold', label: 'Hold' },
             ],
             mode: 'list',
           },

@@ -1,5 +1,5 @@
 import { TemplateResult, LitElement, html, CSSResult, css, PropertyValues } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
@@ -27,7 +27,6 @@ interface WindowWithCustomCards extends Window {
   preview: false,
 });
 
-@customElement('restriction-card')
 class RestrictionCard extends LitElement implements LovelaceCard {
   private static readonly _HELPERS_TIMEOUT_MS = 10000;
 
@@ -53,6 +52,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   private _maxed = false;
   private _retries = 0;
   private _timers: number[] = [];
+  private _cancelWaitForHelpers?: () => void;
   private _hass?: HomeAssistant;
 
   @property({ attribute: false })
@@ -78,7 +78,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   public setConfig(config: RestrictionCardConfig): void {
-    console.info('[RC] setConfig called with', config);
     if (!config.card) {
       throw new Error('Error in card configuration.');
     }
@@ -108,10 +107,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    const keys = [...changedProps.keys()];
     // Always render when config or helpers changes
     if (changedProps.has('_config') || changedProps.has('_helpers')) {
-      console.log('[RC] shouldUpdate → TRUE (state change)', keys);
       return true;
     }
 
@@ -119,36 +116,25 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
     // First render (no previous hass value)
     if (!oldHass) {
-      console.log('[RC] shouldUpdate → TRUE (first hass)', keys);
       return true;
     }
 
     if (!this._hass || !this._config) {
-      console.log('[RC] shouldUpdate → FALSE (no hass/config)', keys);
       return false;
     }
 
     const entity = this._getConditionEntity();
     if (entity) {
       const changed = oldHass.states[entity] !== this._hass.states[entity];
-      console.log('[RC] shouldUpdate → entity check', entity, changed, keys);
       return changed;
     }
 
-    console.log('[RC] shouldUpdate → FALSE (no matching condition)', keys);
     return false;
   }
 
   protected render(): TemplateResult | void {
-    console.log('[RC] render() called', {
-      hasConfig: !!this._config,
-      hasHass: !!this._hass,
-      hasCard: !!this._config?.card,
-      hasHelpers: !!this._helpers,
-      hasCardElement: !!this._cardElement,
-    });
     if (!this._config || !this._hass || !this._config.card || !this._helpers) {
-      console.log('[RC] render() → bailing early (missing required state)');
+      console.debug('[RC] render() → bailing early (missing required state)');
       return html``;
     }
 
@@ -204,6 +190,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
+    this._cancelWaitForHelpers?.();
+    this._cancelWaitForHelpers = undefined;
     for (const id of this._timers) {
       window.clearTimeout(id);
     }
@@ -222,12 +210,6 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   private _buildCardElement(): void {
-    console.log('[RC] _buildCardElement() called', {
-      hasHass: !!this._hass,
-      hasConfig: !!this._config?.card,
-      hasHelpers: !!this._helpers,
-      hasExisting: !!this._cardElement,
-    });
     if (!this._hass || !this._config?.card || !this._helpers) {
       return;
     }
@@ -241,26 +223,37 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     this._cardElement = element;
   }
 
-  private _scheduleTimeout(fn: () => void, ms: number): void {
+  private _scheduleTimeout(fn: () => void, ms: number): number {
     const id = window.setTimeout(() => {
       this._timers = this._timers.filter((t) => t !== id);
       fn();
     }, ms);
     this._timers.push(id);
+    return id;
+  }
+
+  private _clearScheduledTimeout(id: number | undefined): void {
+    if (id === undefined) {
+      return;
+    }
+    window.clearTimeout(id);
+    this._timers = this._timers.filter((t) => t !== id);
   }
 
   private async loadCardHelpers(): Promise<void> {
     try {
       const helpersFactory = await this._waitForCardHelpers(RestrictionCard._HELPERS_TIMEOUT_MS);
+      let resolveTimeoutId: number | undefined;
       this._helpers = await Promise.race<CardHelpers>([
         helpersFactory(),
-        new Promise<CardHelpers>((_, reject) =>
-          setTimeout(
+        new Promise<CardHelpers>((_, reject) => {
+          resolveTimeoutId = this._scheduleTimeout(
             () => reject(new Error('Timed out while resolving card helpers')),
             RestrictionCard._HELPERS_TIMEOUT_MS,
-          ),
-        ),
+          );
+        }),
       ]);
+      this._clearScheduledTimeout(resolveTimeoutId);
       this.requestUpdate();
     } catch (error) {
       console.debug('Unable to load Home Assistant card helpers', error);
@@ -277,25 +270,73 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
     // Otherwise wait for it to appear, falling back to a timeout
     return new Promise((resolve, reject) => {
-      const deadline = window.setTimeout(
-        () => reject(new Error('window.loadCardHelpers was not available in time')),
-        timeoutMs,
-      );
+      let cancelled = false;
+      let pollId: number | undefined;
+      let deadlineId: number | undefined;
 
-      const check = () => {
-        if (typeof win.loadCardHelpers === 'function') {
-          window.clearTimeout(deadline);
-          resolve(win.loadCardHelpers);
-        } else {
-          // Poll infrequently as a fallback; the load event handles the common case
-          window.setTimeout(check, 500);
+      const cleanup = () => {
+        cancelled = true;
+        window.removeEventListener('load', check);
+        this._clearScheduledTimeout(pollId);
+        this._clearScheduledTimeout(deadlineId);
+        if (this._cancelWaitForHelpers === cancelWait) {
+          this._cancelWaitForHelpers = undefined;
         }
       };
 
+      const resolveOnce = (helpersFactory: () => Promise<CardHelpers>) => {
+        if (cancelled) {
+          return;
+        }
+        cleanup();
+        resolve(helpersFactory);
+      };
+
+      const rejectOnce = (error: Error) => {
+        if (cancelled) {
+          return;
+        }
+        cleanup();
+        reject(error);
+      };
+
+      const scheduleCheck = (delay: number) => {
+        if (cancelled) {
+          return;
+        }
+        pollId = this._scheduleTimeout(check, delay);
+      };
+
+      const check = () => {
+        if (cancelled) {
+          return;
+        }
+        if (!this.isConnected) {
+          rejectOnce(new Error('Restriction card disconnected before card helpers became available'));
+          return;
+        }
+        if (typeof win.loadCardHelpers === 'function') {
+          resolveOnce(win.loadCardHelpers);
+        } else {
+          // Poll infrequently as a fallback; the load event handles the common case
+          scheduleCheck(500);
+        }
+      };
+
+      const cancelWait = () => {
+        rejectOnce(new Error('Restriction card disconnected before card helpers became available'));
+      };
+      this._cancelWaitForHelpers = cancelWait;
+
+      deadlineId = this._scheduleTimeout(
+        () => rejectOnce(new Error('window.loadCardHelpers was not available in time')),
+        timeoutMs,
+      );
+
       // HA fires a 'load' event on window when its JS modules finish loading
-      window.addEventListener('load', check, { once: true });
+      window.addEventListener('load', check);
       // Also start a single delayed check in case the event already fired
-      window.setTimeout(check, 0);
+      scheduleCheck(0);
     });
   }
 
@@ -552,6 +593,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
     `;
   }
+}
+
+if (!customElements.get('restriction-card')) {
+  customElements.define('restriction-card', RestrictionCard);
 }
 
 declare global {

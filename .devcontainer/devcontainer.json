@@ -33,7 +33,6 @@
     "DEVCONTAINER": "1",
     "HASS_USERNAME": "dev",
     "HASS_PASSWORD": "dev",
-    "LOVELACE_LOCAL_FILES": "restriction-card.js",
     "LOVELACE_REMOTE_FILES": "http://localhost:5000/restriction-card.js"
   },
 

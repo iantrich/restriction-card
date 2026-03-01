@@ -1,6 +1,6 @@
 import { ActionHandlerDetail, ActionHandlerOptions } from 'custom-card-helpers/dist/types';
 import { directive, Directive, ElementPart, PartInfo } from 'lit/directive.js';
-import { deepEqual, fireEvent } from 'custom-card-helpers';
+import { deepEqual, fireEvent, forwardHaptic } from 'custom-card-helpers';
 
 const customFireEvent = <T extends keyof HASSDomEvents>(node: HTMLElement, type: T, detail: HASSDomEvents[T]): void => {
   fireEvent(node, type, detail);
@@ -121,6 +121,7 @@ const setupActionHandlerMethods = (element: HTMLElement): ActionHandler => {
         actionHandler.timer = window.setTimeout(() => {
           actionHandler.startAnimation(x, y);
           actionHandler.held = true;
+          forwardHaptic('success');
           customFireEvent(element, 'action', { action: 'hold' });
 
           if (options.repeat && options.repeat > 0) {
@@ -228,7 +229,10 @@ const setupActionHandlerMethods = (element: HTMLElement): ActionHandler => {
 
     element.addEventListener('touchstart', element.actionHandler.start, { passive: true });
     element.addEventListener('touchmove', handleTouchMove, { passive: true });
-    element.addEventListener('touchend', element.actionHandler.end);
+    element.addEventListener('touchend', (ev) => {
+      ev.preventDefault();
+      element.actionHandler!.end!(ev);
+    });
     element.addEventListener('touchcancel', element.actionHandler.end);
     element.addEventListener('mousedown', element.actionHandler.start, { passive: true });
     element.addEventListener('click', element.actionHandler.end);
