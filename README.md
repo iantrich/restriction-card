@@ -18,13 +18,7 @@ This card is not to be used as a means to truly protect an instance. Someone wit
 
 ## Minimum Home Assistant version
 
-Home Assistant version 0.110.0 or higher is required as of release 1.2.0 of restriction-card
-
-## Support
-
-Hey dude! Help me out for a couple of :beers: or a :coffee:!
-
-[![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://www.buymeacoffee.com/zJtVxUAgH)
+Home Assistant version 2026.2.3 or higher is required as of release 2.0.0 of restriction-card
 
 ## Installation
 

@@ -88,13 +88,3 @@ views:
           entity: sensor.outside_humidity
           name: Throttle?
           graph: line
-      - type: 'custom:restriction-card'
-        restrictions:
-          pin:
-            code: 1234
-            retry_delay: 10
-            max_retries: 2
-            max_retries_delay: 20
-        card:
-          type: map
-          entities: []

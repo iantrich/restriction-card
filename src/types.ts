@@ -6,6 +6,9 @@ export interface RestrictionCardConfig extends LovelaceCardConfig {
   condition?: ConditionConfig;
   card?: LovelaceCardConfig;
   row?: boolean;
+  /** Seconds the card stays unlocked after the user authenticates. */
+  duration?: number;
+  /** @deprecated Use `duration` instead. */
   delay?: number;
   action?: string;
   locked_icon?: string;
