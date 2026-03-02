@@ -133,7 +133,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
   protected render(): TemplateResult | void {
     if (!this._config || !this._hass || !this._config.card || !this._helpers) {
-      console.debug('[RC] render() → bailing early (missing required state)');
+      console.info('[RC] render() → bailing early (missing required state)');
       return html``;
     }
 
@@ -255,7 +255,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       this._clearScheduledTimeout(resolveTimeoutId);
       this.requestUpdate();
     } catch (error) {
-      console.debug('Unable to load Home Assistant card helpers', error);
+      console.error('Unable to load Home Assistant card helpers', error);
     }
   }
 
