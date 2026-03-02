@@ -145,6 +145,10 @@ const setupActionHandlerMethods = (element: HTMLElement): ActionHandler => {
         return;
       }
 
+      if (ev.type === 'touchend' && ev.cancelable) {
+        ev.preventDefault();
+      }
+
       if (['touchend', 'touchcancel'].includes(ev.type) && actionHandler.cancelled) {
         if (actionHandler.isRepeating && actionHandler.repeatTimeout) {
           window.clearInterval(actionHandler.repeatTimeout);
@@ -229,10 +233,7 @@ const setupActionHandlerMethods = (element: HTMLElement): ActionHandler => {
 
     element.addEventListener('touchstart', element.actionHandler.start, { passive: true });
     element.addEventListener('touchmove', handleTouchMove, { passive: true });
-    element.addEventListener('touchend', (ev) => {
-      ev.preventDefault();
-      element.actionHandler!.end!(ev);
-    });
+    element.addEventListener('touchend', element.actionHandler.end);
     element.addEventListener('touchcancel', element.actionHandler.end);
     element.addEventListener('mousedown', element.actionHandler.start, { passive: true });
     element.addEventListener('click', element.actionHandler.end);

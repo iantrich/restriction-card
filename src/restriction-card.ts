@@ -30,7 +30,6 @@ interface WindowWithCustomCards extends Window {
 class RestrictionCard extends LitElement implements LovelaceCard {
   private static readonly _HELPERS_TIMEOUT_MS = 10000;
 
-  /** Opens the visual editor. Dynamically imported to keep initial bundle small. */
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
     await import('./editor');
     return document.createElement('restriction-card-editor') as unknown as LovelaceCardEditor;

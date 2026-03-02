@@ -55,6 +55,10 @@ resources:
 | block   | map  | **Optional** | Block interaction restriction. See [Block options](#block-options)       |
 | hide    | map  | **Optional** | Hide card restriction. See [Hide options](#hide-options)                |
 
+Notes:
+- Restriction types (`confirm`, `pin`, `block`, `hide`) are map objects.
+- To enable a restriction without extra settings, use an empty map (for example `block: {}` or `hide: {}`).
+
 ## Confirm options
 
 | Name       | Type   | Requirement  | Description                                                                                 |
@@ -192,11 +196,47 @@ entities:
   - card:
       entity: cover.garage_door
     restrictions:
-      block: true
+      block: {}
     type: 'custom:restriction-card'
     row: true
   - entity: light.kitchen
 ```
+##
+Hide restriction with exemptions example
+
+Hide this card for everyone except specific users:
+
+```yaml
+type: custom:restriction-card
+restrictions:
+  hide:
+    exemptions:
+      - user: adminid
+      - user: spouseid
+card:
+  type: entities
+  entities:
+    - entity: lock.front_door
+```
+
+##
+Hide restriction with condition example
+
+Hide this card only when a condition matches:
+
+```yaml
+type: custom:restriction-card
+restrictions:
+  hide:
+    condition:
+      entity: alarm_control_panel.home
+      value: armed_away
+      operator: ==
+card:
+  type: button
+  entity: lock.front_door
+```
+
 ##
 Overlay background example
 
@@ -229,7 +269,7 @@ Card blocked:
 ```yaml
 type: custom:restriction-card
 restrictions:
-  block: true
+  block: {}
 card:
   type: entities
   entities:
@@ -244,7 +284,7 @@ type: entities
 entities:
   - type: custom:restriction-card
     restrictions:
-      block: true
+      block: {}
     row: true
     card:
       entity: switch.test_switch
