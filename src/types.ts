@@ -60,6 +60,10 @@ export interface ConditionConfig {
 export interface CardHelpers {
   createRowElement(config: LovelaceCardConfig): LovelaceCard;
   createCardElement(config: LovelaceCardConfig): LovelaceCard;
+  showConfirmationDialog?: (
+    element: HTMLElement,
+    options: { title: string; text?: string; confirmText?: string; dismissText?: string },
+  ) => Promise<boolean>;
   showEnterCodeDialog?: (
     element: Element,
     options: { codeFormat: 'text' | 'number'; title: string; submitText: string },

@@ -479,7 +479,28 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
 
       if (this._config.restrictions.confirm && this._matchRestriction(this._config.restrictions.confirm)) {
-        if (!confirm(this._config.restrictions.confirm.text || 'Are you sure you want to unlock?')) {
+        const confirmTitle = this._hass?.localize('ui.dialogs.generic.default_confirmation_title') || 'Confirm';
+        const confirmButtonText = this._hass?.localize('ui.common.ok') || 'OK';
+        const dismissButtonText = this._hass?.localize('ui.common.cancel') || 'Cancel';
+        const defaultConfirmText =
+          this._hass?.localize('ui.panel.lovelace.cards.actions.action_confirmation', {
+            action: confirmButtonText,
+          }) || 'Are you sure you want to unlock?';
+        const confirmText = this._config.restrictions.confirm.text || defaultConfirmText;
+        let isConfirmed = false;
+
+        if (this._helpers?.showConfirmationDialog) {
+          isConfirmed = await this._helpers.showConfirmationDialog(this, {
+            title: confirmTitle,
+            text: confirmText,
+            confirmText: confirmButtonText,
+            dismissText: dismissButtonText,
+          });
+        } else {
+          isConfirmed = confirm(confirmText);
+        }
+
+        if (!isConfirmed) {
           return;
         }
       }
