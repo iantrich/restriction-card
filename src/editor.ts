@@ -252,7 +252,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
       <ha-icon-picker
         .hass=${this.hass}
         .value=${this._config?.unlocked_icon ?? ''}
-        label="Unlocked icon (optional — defaults to locked icon)"
+        label="Unlocked icon (optional — defaults to fading away)"
         .configValue=${'unlocked_icon'}
         @value-changed=${this._valueChanged}
       ></ha-icon-picker>
