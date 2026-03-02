@@ -58,7 +58,6 @@ yarn lint
 ## Localization and copy
 
 - Do not hardcode user-facing strings when a localize key should be used.
-- Add new translation keys to both language files currently in the repo (`en.json`, `nb.json`).
 - Keep copy concise, sentence case, and user-facing.
 - Favor consistent terminology across card UI and editor labels.
 

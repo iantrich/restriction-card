@@ -148,7 +148,7 @@ Note: jinja templates are not supported, use card-mod if you need templates.
 
 ## Example configurations
 
-Simple lock example
+### Simple lock example
 
 ![lock](lock.gif)
 
@@ -158,8 +158,8 @@ card:
   type: thermostat
   entity: climate.house
 ```
-##
-More complex example
+
+### More complex example
 
 ![complex](pin.gif)
 
@@ -185,8 +185,8 @@ card:
   type: thermostat
   entity: climate.house
 ```
-##
-Row example
+
+### Row example
 
 ![row](row.png)
 
@@ -201,10 +201,8 @@ entities:
     row: true
   - entity: light.kitchen
 ```
-##
-Hide restriction with exemptions example
 
-Hide this card for everyone except specific users:
+### Hide restriction for everyone except specific users:
 
 ```yaml
 type: custom:restriction-card
@@ -219,10 +217,7 @@ card:
     - entity: lock.front_door
 ```
 
-##
-Hide restriction with condition example
-
-Hide this card only when a condition matches:
+### Hide restriction only when a condition matches:
 
 ```yaml
 type: custom:restriction-card
@@ -237,10 +232,9 @@ card:
   entity: lock.front_door
 ```
 
-##
-Overlay background example
+### Overlay background example
 
-Card locked:
+#### Card locked:
 
 ![image](https://github.com/user-attachments/assets/54b64298-ba6f-4687-a704-e63dc2a1b11e)
 ```yaml
@@ -251,7 +245,7 @@ card:
     - entity: switch.test_switch
 ```
 
-Row locked:
+#### Row locked:
 
 ![image](https://github.com/user-attachments/assets/93752506-b2df-44fa-ae66-b36bdd430f1d)
 ```yaml
@@ -263,7 +257,7 @@ entities:
       entity: switch.test_switch
 ```
 
-Card blocked:
+#### Card blocked:
 
 ![image](https://github.com/user-attachments/assets/a9336776-a2ea-4689-b801-fa43e64ab001)
 ```yaml
@@ -276,7 +270,7 @@ card:
     - entity: switch.test_switch
 ```
 
-Row blocked:
+#### Row blocked:
 
 ![image](https://github.com/user-attachments/assets/0ea65870-45a5-4a60-9aa8-97ce8b697934)
 ```yaml
@@ -290,7 +284,8 @@ entities:
       entity: switch.test_switch
 ```
 
-Theme file:
+### Theme file:
+
 ```yaml
   restriction-overlay-background: repeating-linear-gradient( -45deg, transparent 0 10px,var(--user-restriction-card-mask,rgba(255,0,0,0.07)) 10px 20px)
   restriction-overlay-background-blocked: repeating-linear-gradient( -45deg, transparent 0 10px,var(--user-restriction-card-mask,rgba(127,127,127,0.07)) 10px 20px)
@@ -300,8 +295,7 @@ Theme file:
   restriction-overlay-row-outline-blocked: 1px solid rgba(127,127,127,0.1)
 ```
 
-##
-Example with `css_variables`
+### Example with `css_variables`
 
 ![изображение](https://github.com/user-attachments/assets/e28a9d6b-db32-48e9-84f8-ab36c4bf5fb5)
 ```
@@ -320,8 +314,8 @@ entities:
       entity: switch.test_switch
 ```
 
-##
-Multiple pin codes example
+### Multiple pin codes example
+
 ```
 ...
 restrictions:
@@ -336,13 +330,13 @@ restrictions:
     text: Enter pin to unlock
 ...
 ```
+
 Notes:
 1. Numerical values with leading zeros may be mistreated. To avoid this, wrap values in quotes.
 2. Dependently on a presence of alpha-numeric pin codes (like `abcd`, `abcd1234`, `12 34`, `12.24`, `12,34`) in the `code` option, a particular "enter pin" dialog is shown: if all values are numerical - a numerical keypad is shown, otherwise - a simple input-box allowing to input any characters.
 
 
-##
-Alterations by card-mod:
+## Alterations by card-mod:
 
 If an internal card/row's elements have `z-index` > 0, it may cause issues like "an inner card/row is not blocked (fully or partly)".
 
