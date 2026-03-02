@@ -255,7 +255,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       this._clearScheduledTimeout(resolveTimeoutId);
       this.requestUpdate();
     } catch (error) {
-      console.debug('Unable to load Home Assistant card helpers', error);
+      console.error('Unable to load Home Assistant card helpers', error);
     }
   }
 
