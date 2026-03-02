@@ -133,7 +133,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
   protected render(): TemplateResult | void {
     if (!this._config || !this._hass || !this._config.card || !this._helpers) {
-      console.debug('[RC] render() → bailing early (missing required state)');
+      console.info('[RC] render() → bailing early (missing required state)');
       return html``;
     }
 
