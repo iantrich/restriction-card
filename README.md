@@ -24,12 +24,6 @@ Home Assistant version 2026.2.3 or higher is required as of release 2.0.0 of res
 
 Use [HACS](https://hacs.xyz) or follow this [guide](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
-```yaml
-resources:
-  url: /local/restriction-card.js
-  type: module
-```
-
 ## Options
 
 | Name          | Type    | Requirement  | Description                                                                                     |
