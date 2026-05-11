@@ -403,7 +403,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         const isMultiplePins = Array.isArray(this._config.restrictions.pin.code);
         let pin;
         const titleDialog = this._config.restrictions.pin.text || 'Input pin code';
-        if (this._helpers?.showEnterCodeDialog) {
+        if (this._helpers?.showEnterCodeDialog && !this._config.force_generic_dialog) {
           const regex = /^\d+$/;
           let codeFormat: 'number' | 'text';
           if (!isMultiplePins) {
