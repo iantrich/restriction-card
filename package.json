@@ -27,7 +27,7 @@
     "@babel/plugin-proposal-decorators": "^7.10.3",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
-    "eslint": "^6.6.0",
+    "eslint": "^10.3.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.21.2",
