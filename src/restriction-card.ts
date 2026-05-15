@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { TemplateResult, customElement, LitElement, property, html, CSSResult, css, PropertyValues } from 'lit-element';
-import { classMap } from 'lit-html/directives/class-map';
-import { styleMap } from 'lit-html/directives/style-map.js';
-import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { RestrictionCardConfig } from './types';
-import { HomeAssistant, LovelaceCard, computeCardSize, LovelaceCardConfig, evaluateFilter } from 'custom-card-helpers';
+import { TemplateResult, LitElement, html, CSSResult, css, PropertyValues } from 'lit';
+import { property, state } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
+import { styleMap } from 'lit/directives/style-map.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
+import { RestrictionBaseConfig, RestrictionCardConfig, CardHelpers, WindowWithCardHelpers } from './types';
+import { HomeAssistant, LovelaceCard, LovelaceCardEditor, computeCardSize, evaluateFilter } from 'custom-card-helpers';
 import { CARD_VERSION } from './const';
 import { actionHandler } from './action-handler-directive';
 
@@ -15,34 +15,62 @@ console.info(
   'color: white; font-weight: bold; background: dimgray',
 );
 
-@customElement('restriction-card')
+interface WindowWithCustomCards extends Window {
+  customCards: Array<{ type: string; name: string; description: string; preview?: boolean }>;
+}
+(window as unknown as WindowWithCustomCards).customCards =
+  (window as unknown as WindowWithCustomCards).customCards || [];
+(window as unknown as WindowWithCustomCards).customCards.push({
+  type: 'restriction-card',
+  name: 'Restriction Card',
+  description: 'Wrap any card with access restriction: PIN, confirmation, block, or hide based on conditions.',
+  preview: false,
+});
+
 class RestrictionCard extends LitElement implements LovelaceCard {
-  @property() protected _config?: RestrictionCardConfig;
-  @property() protected _hass?: HomeAssistant;
-  @property() private _helpers?: any;
-  @property() private _unlocked = false;
-  private _initialized = false;
+  private static readonly _HELPERS_TIMEOUT_MS = 10000;
+
+  public static async getConfigElement(): Promise<LovelaceCardEditor> {
+    await import('./editor');
+    return document.createElement('restriction-card-editor') as unknown as LovelaceCardEditor;
+  }
+
+  /** Minimal stub config shown in the card picker before the editor is opened. */
+  public static getStubConfig(): Record<string, unknown> {
+    return {
+      card: { type: 'button' },
+      restrictions: { confirm: {} },
+    };
+  }
+
+  @state() private _config?: RestrictionCardConfig;
+  @state() private _helpers?: CardHelpers;
+  private _cardElement?: LovelaceCard;
+  @state() private _unlocked = false;
   private _delay = false;
   private _maxed = false;
   private _retries = 0;
+  private _timers: number[] = [];
+  private _cancelWaitForHelpers?: () => void;
+  private _hass?: HomeAssistant;
+
+  @property({ attribute: false })
+  get hass(): HomeAssistant | undefined {
+    return this._hass;
+  }
 
   set hass(hass: HomeAssistant) {
     this._hass = hass;
 
-    if (this.shadowRoot) {
-      const element = this.shadowRoot.querySelector('#card > *') as LovelaceCard;
-      if (element) {
-        element.hass = hass;
-      }
+    // Push hass updates directly to the cached element
+    if (this._cardElement) {
+      this._cardElement.hass = hass;
     }
   }
 
-  public getCardSize(): number {
-    if (this.shadowRoot) {
-      const element = this.shadowRoot.querySelector('#card > *') as LovelaceCard;
-      if (element) {
-        return computeCardSize(element);
-      }
+  public getCardSize(): number | Promise<number> {
+    if (this._cardElement) {
+      return computeCardSize(this._cardElement);
     }
 
     return 1;
@@ -57,56 +85,55 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       throw new Error('A pin code is required for pin restrictions');
     }
 
+    const legacyDelay = (config as { delay?: unknown }).delay;
+    const rawDuration = config.duration ?? legacyDelay ?? 5;
+    const coercedDuration = Number(rawDuration);
+
     this._config = {
-      duration: 5,
+      duration: Number.isFinite(coercedDuration) && coercedDuration > 0 ? coercedDuration : 5,
       action: 'tap',
       locked_icon: 'mdi:lock-outline',
       ...config,
     };
+    // Keep validated duration in case YAML input is null/blank/invalid
+    this._config.duration = Number.isFinite(coercedDuration) && coercedDuration > 0 ? coercedDuration : 5;
+    // Clear cached element so it is rebuilt with the new config
+    this._cardElement = undefined;
 
-    this.loadCardHelpers();
+    if (!this._helpers) {
+      this.loadCardHelpers();
+    }
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    if (!this._initialized) {
-      this._initialize();
-    }
-
-    const oldHass = changedProps.get('_hass') as HomeAssistant | undefined;
-
-    if (changedProps.has('_config') || !oldHass) {
+    // Always render when config or helpers changes
+    if (changedProps.has('_config') || changedProps.has('_helpers')) {
       return true;
     }
 
-    let entity;
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
+
+    // First render (no previous hass value)
+    if (!oldHass) {
+      return true;
+    }
+
     if (!this._hass || !this._config) {
       return false;
-    } else if (this._config.condition && this._config.condition.entity) {
-      entity = this._config.condition.entity;
-      return oldHass.states[entity] !== this._hass.states[entity];
-    } else if (!this._config.restrictions) {
-      return false;
-    } else if (
-      this._config.restrictions.block &&
-      this._config.restrictions.block.condition &&
-      this._config.restrictions.block.condition.entity
-    ) {
-      entity = this._config.restrictions.block.condition.entity;
-      return oldHass.states[entity] !== this._hass.states[entity];
-    } else if (
-      this._config.restrictions.hide &&
-      this._config.restrictions.hide.condition &&
-      this._config.restrictions.hide.condition.entity
-    ) {
-      entity = this._config.restrictions.hide.condition.entity;
-      return oldHass.states[entity] !== this._hass.states[entity];
-    } else {
-      return false;
     }
+
+    const entity = this._getConditionEntity();
+    if (entity) {
+      const changed = oldHass.states[entity] !== this._hass.states[entity];
+      return changed;
+    }
+
+    return false;
   }
 
   protected render(): TemplateResult | void {
     if (!this._config || !this._hass || !this._config.card || !this._helpers) {
+      console.info('[RC] render() → bailing early (missing required state)');
       return html``;
     }
 
@@ -118,7 +145,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     return html`
       <div id="mainContainer" style=${ifDefined(styleMap(this._config.css_variables || {}))}>
         ${(this._config.exemptions &&
-          this._config.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) ||
+          this._config.exemptions.some((e) =>
+            this._hass && this._hass.user ? e.user === this._hass.user.id : false,
+          )) ||
         (this._config.condition &&
           !evaluateFilter(this._hass.states[this._config.condition.entity], this._config.condition))
           ? ''
@@ -131,7 +160,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 })}
                 id="overlay"
                 class=${classMap({
-                  locked: !Boolean(this._unlocked) && !Boolean(isBlocked),
+                  locked: !this._unlocked && !isBlocked,
                   blocked: Boolean(isBlocked),
                   'has-row': Boolean(this._config.row),
                   'fill-available': true,
@@ -139,7 +168,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
               >
                 <div id="subContainer" class=${classMap({ 'fill-available': true })}>
                   <ha-icon
-                    icon=${Boolean(this._unlocked)
+                    icon=${this._unlocked
                       ? this._config.unlocked_icon
                         ? this._config.unlocked_icon
                         : this._config.locked_icon
@@ -153,50 +182,185 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 </div>
               </div>
             `}
-        ${this.renderCard(this._config.card)}
+        ${this.renderCard()}
       </div>
     `;
   }
 
-  private _initialize(): void {
-    if (this.hass === undefined) return;
-    if (this._config === undefined) return;
-    if (this._helpers === undefined) return;
-    this._initialized = true;
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this._cancelWaitForHelpers?.();
+    this._cancelWaitForHelpers = undefined;
+    for (const id of this._timers) {
+      window.clearTimeout(id);
+    }
+    this._timers = [];
+  }
+
+  private _getConditionEntity(): string | undefined {
+    const r = this._config?.restrictions;
+    return (
+      this._config?.condition?.entity ??
+      r?.block?.condition?.entity ??
+      r?.hide?.condition?.entity ??
+      r?.pin?.condition?.entity ??
+      r?.confirm?.condition?.entity
+    );
+  }
+
+  private _buildCardElement(): void {
+    if (!this._hass || !this._config?.card || !this._helpers) {
+      return;
+    }
+    if (this._cardElement) {
+      return;
+    }
+    const element = this._config.row
+      ? this._helpers.createRowElement(this._config.card)
+      : this._helpers.createCardElement(this._config.card);
+    element.hass = this._hass;
+    this._cardElement = element;
+  }
+
+  private _scheduleTimeout(fn: () => void, ms: number): number {
+    const id = window.setTimeout(() => {
+      this._timers = this._timers.filter((t) => t !== id);
+      fn();
+    }, ms);
+    this._timers.push(id);
+    return id;
+  }
+
+  private _clearScheduledTimeout(id: number | undefined): void {
+    if (id === undefined) {
+      return;
+    }
+    window.clearTimeout(id);
+    this._timers = this._timers.filter((t) => t !== id);
   }
 
   private async loadCardHelpers(): Promise<void> {
-    this._helpers = await (window as any).loadCardHelpers();
+    try {
+      const helpersFactory = await this._waitForCardHelpers(RestrictionCard._HELPERS_TIMEOUT_MS);
+      let resolveTimeoutId: number | undefined;
+      this._helpers = await Promise.race<CardHelpers>([
+        helpersFactory(),
+        new Promise<CardHelpers>((_, reject) => {
+          resolveTimeoutId = this._scheduleTimeout(
+            () => reject(new Error('Timed out while resolving card helpers')),
+            RestrictionCard._HELPERS_TIMEOUT_MS,
+          );
+        }),
+      ]);
+      this._clearScheduledTimeout(resolveTimeoutId);
+      this.requestUpdate();
+    } catch (error) {
+      console.error('Unable to load Home Assistant card helpers', error);
+    }
   }
 
-  private renderCard(config: LovelaceCardConfig): TemplateResult {
-    if (this._hass && this._config && this._helpers) {
-      const element = this._config.row
-        ? this._helpers.createRowElement(config)
-        : this._helpers.createCardElement(config);
-      element.hass = this._hass;
+  private _waitForCardHelpers(timeoutMs: number): Promise<() => Promise<CardHelpers>> {
+    const win = window as WindowWithCardHelpers;
 
-      return html`
-        <div id="card" class=${classMap({ 'is-row': Boolean(this._config.row) })}>
-          ${element}
-        </div>
-      `;
+    // If already available synchronously, resolve immediately with no delay
+    if (typeof win.loadCardHelpers === 'function') {
+      return Promise.resolve(win.loadCardHelpers);
     }
 
-    return html``;
+    // Otherwise wait for it to appear, falling back to a timeout
+    return new Promise((resolve, reject) => {
+      let cancelled = false;
+      let pollId: number | undefined;
+      let deadlineId: number | undefined;
+
+      const cleanup = () => {
+        cancelled = true;
+        window.removeEventListener('load', check);
+        this._clearScheduledTimeout(pollId);
+        this._clearScheduledTimeout(deadlineId);
+        if (this._cancelWaitForHelpers === cancelWait) {
+          this._cancelWaitForHelpers = undefined;
+        }
+      };
+
+      const resolveOnce = (helpersFactory: () => Promise<CardHelpers>) => {
+        if (cancelled) {
+          return;
+        }
+        cleanup();
+        resolve(helpersFactory);
+      };
+
+      const rejectOnce = (error: Error) => {
+        if (cancelled) {
+          return;
+        }
+        cleanup();
+        reject(error);
+      };
+
+      const scheduleCheck = (delay: number) => {
+        if (cancelled) {
+          return;
+        }
+        pollId = this._scheduleTimeout(check, delay);
+      };
+
+      const check = () => {
+        if (cancelled) {
+          return;
+        }
+        if (!this.isConnected) {
+          rejectOnce(new Error('Restriction card disconnected before card helpers became available'));
+          return;
+        }
+        if (typeof win.loadCardHelpers === 'function') {
+          resolveOnce(win.loadCardHelpers);
+        } else {
+          // Poll infrequently as a fallback; the load event handles the common case
+          scheduleCheck(500);
+        }
+      };
+
+      const cancelWait = () => {
+        rejectOnce(new Error('Restriction card disconnected before card helpers became available'));
+      };
+      this._cancelWaitForHelpers = cancelWait;
+
+      deadlineId = this._scheduleTimeout(
+        () => rejectOnce(new Error('window.loadCardHelpers was not available in time')),
+        timeoutMs,
+      );
+
+      // HA fires a 'load' event on window when its JS modules finish loading
+      window.addEventListener('load', check);
+      // Also start a single delayed check in case the event already fired
+      scheduleCheck(0);
+    });
   }
 
-  private _matchRestriction(restriction): boolean {
+  private renderCard(): TemplateResult {
+    // Build element lazily here - all required values are guaranteed present by render()'s guard
+    this._buildCardElement();
+    if (!this._cardElement) {
+      return html``;
+    }
+    return html`<div id="card" class=${classMap({ 'is-row': Boolean(this._config?.row) })}>${this._cardElement}</div>`;
+  }
+
+  private _matchRestriction(restriction?: RestrictionBaseConfig): boolean {
+    if (!this._hass || !restriction) {
+      return false;
+    }
+
     return (
-      this._hass &&
-      restriction &&
       (!restriction.exemptions ||
-        !restriction.exemptions.some(e => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) &&
+        !restriction.exemptions.some((e) => (this._hass && this._hass.user ? e.user === this._hass.user.id : false))) &&
       (!restriction.condition || evaluateFilter(this._hass.states[restriction.condition.entity], restriction.condition))
     );
   }
 
-  private _handleAction(ev): void {
+  private _handleAction(ev: CustomEvent<{ action: string }>): void {
     if (this._config?.action === ev.detail.action) {
       this._handleRestriction();
     }
@@ -207,18 +371,28 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       return;
     }
 
-    const lock = this.shadowRoot.getElementById('lock') as LitElement;
-    const overlay = this.shadowRoot.getElementById('overlay') as LitElement;
+    const lock = this.shadowRoot.getElementById('lock');
+    const overlay = this.shadowRoot.getElementById('overlay');
+
+    if (!lock || !overlay) {
+      return;
+    }
 
     if (this._config.restrictions) {
       if (this._config.restrictions.block && this._matchRestriction(this._config.restrictions.block)) {
         if (this._config.restrictions.block.text) {
-          alert(this._config.restrictions.block.text);
+          this.dispatchEvent(
+            new CustomEvent('hass-notification', {
+              bubbles: true,
+              composed: true,
+              detail: { message: this._config.restrictions.block.text },
+            }),
+          );
         }
 
         lock.classList.add('icon-invalid');
         overlay.classList.add('overlay-invalid');
-        window.setTimeout(() => {
+        this._scheduleTimeout(() => {
           lock.classList.remove('icon-invalid');
           overlay.classList.remove('overlay-invalid');
         }, 3000);
@@ -231,7 +405,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         const titleDialog = this._config.restrictions.pin.text || 'Input pin code';
         if (this._helpers?.showEnterCodeDialog) {
           const regex = /^\d+$/;
-          let codeFormat;
+          let codeFormat: 'number' | 'text';
           if (!isMultiplePins) {
             const asString = this._config.restrictions.pin.code as string;
             codeFormat = regex.test(asString) ? 'number' : 'text';
@@ -249,7 +423,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         }
 
         let conditionString = false;
-        if (!isMultiplePins) conditionString = pin != (this._config.restrictions.pin.code as string);
+        if (!isMultiplePins) conditionString = pin !== String(this._config.restrictions.pin.code);
 
         let conditionArray = false;
         if (isMultiplePins)
@@ -271,7 +445,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           if (this._config.restrictions.pin.max_retries && this._retries >= this._config.restrictions.pin.max_retries) {
             this._maxed = true;
 
-            window.setTimeout(
+            this._scheduleTimeout(
               () => {
                 lock.classList.remove('icon-invalid');
                 overlay.classList.remove('overlay-invalid');
@@ -284,7 +458,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 : 5000,
             );
           } else {
-            window.setTimeout(
+            this._scheduleTimeout(
               () => {
                 this._delay = false;
 
@@ -304,7 +478,28 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
 
       if (this._config.restrictions.confirm && this._matchRestriction(this._config.restrictions.confirm)) {
-        if (!confirm(this._config.restrictions.confirm.text || 'Are you sure you want to unlock?')) {
+        const confirmTitle = this._hass?.localize('ui.dialogs.generic.default_confirmation_title') || 'Confirm';
+        const confirmButtonText = this._hass?.localize('ui.common.ok') || 'OK';
+        const dismissButtonText = this._hass?.localize('ui.common.cancel') || 'Cancel';
+        const defaultConfirmText =
+          this._hass?.localize('ui.panel.lovelace.cards.actions.action_confirmation', {
+            action: confirmButtonText,
+          }) || 'Are you sure you want to unlock?';
+        const confirmText = this._config.restrictions.confirm.text || defaultConfirmText;
+        let isConfirmed = false;
+
+        if (this._helpers?.showConfirmationDialog) {
+          isConfirmed = await this._helpers.showConfirmationDialog(this, {
+            title: confirmTitle,
+            text: confirmText,
+            confirmText: confirmButtonText,
+            dismissText: dismissButtonText,
+          });
+        } else {
+          isConfirmed = confirm(confirmText);
+        }
+
+        if (!isConfirmed) {
           return;
         }
       }
@@ -316,13 +511,16 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     overlay.classList.add('unlocked');
     overlay.classList.remove('locked');
 
-    window.setTimeout(() => {
-      this._unlocked = false;
-      overlay.style.setProperty('pointer-events', '');
-      lock.classList.remove('icon-hidden');
-      overlay.classList.remove('unlocked');
-      overlay.classList.add('locked');
-    }, this._config.duration * 1000);
+    this._scheduleTimeout(
+      () => {
+        this._unlocked = false;
+        overlay.style.setProperty('pointer-events', '');
+        lock.classList.remove('icon-hidden');
+        overlay.classList.remove('unlocked');
+        overlay.classList.add('locked');
+      },
+      (this._config.duration ?? 5) * 1000,
+    );
   }
 
   static get styles(): CSSResult {
@@ -360,7 +558,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       #overlay.unlocked #subContainer {
         border-color: transparent;
         opacity: 0 !important;
-        transition: border-color 2s, opacity 2s linear;
+        transition:
+          border-color 2s,
+          opacity 2s linear;
       }
       #overlay.blocked #subContainer {
         background: var(--restriction-overlay-background-blocked, unset) !important;
@@ -391,7 +591,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       .icon-hidden {
         opacity: 0 !important;
-        transition: visibility 0s 2s, opacity 2s linear;
+        transition:
+          visibility 0s 2s,
+          opacity 2s linear;
         color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4)) !important;
       }
       .icon-blocked {
@@ -411,6 +613,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
     `;
   }
+}
+
+if (!customElements.get('restriction-card')) {
+  customElements.define('restriction-card', RestrictionCard);
 }
 
 declare global {

@@ -1,4 +1,4 @@
-import { LovelaceCardConfig } from 'custom-card-helpers';
+import { LovelaceCardConfig, LovelaceCard } from 'custom-card-helpers';
 
 export interface RestrictionCardConfig extends LovelaceCardConfig {
   restrictions?: RestrictionsConfig;
@@ -6,11 +6,19 @@ export interface RestrictionCardConfig extends LovelaceCardConfig {
   condition?: ConditionConfig;
   card?: LovelaceCardConfig;
   row?: boolean;
+  /** Seconds the card stays unlocked after the user authenticates. */
+  duration?: number;
+  /** @deprecated Use `duration` instead. */
   delay?: number;
   action?: string;
   locked_icon?: string;
   unlocked_icon?: string;
-  css_variables?: {};
+  css_variables?: Record<string, string | number | null | undefined>;
+}
+
+export interface RestrictionBaseConfig {
+  exemptions?: ExemptionConfig[];
+  condition?: ConditionConfig;
 }
 
 export interface RestrictionsConfig {
@@ -20,28 +28,19 @@ export interface RestrictionsConfig {
   hide?: HideRestrictionConfig;
 }
 
-export interface ConfirmRestrictionConfig {
+export interface ConfirmRestrictionConfig extends RestrictionBaseConfig {
   text?: string;
-  exemptions?: ExemptionConfig[];
-  condition?: ConditionConfig;
 }
 
-export interface BlockRestrictionConfig {
+export interface BlockRestrictionConfig extends RestrictionBaseConfig {
   text?: string;
-  exemptions?: ExemptionConfig[];
-  condition?: ConditionConfig;
 }
 
-export interface HideRestrictionConfig {
-  exemptions?: ExemptionConfig[];
-  condition?: ConditionConfig;
-}
+export type HideRestrictionConfig = RestrictionBaseConfig;
 
-export interface PinRestrictionConfig {
+export interface PinRestrictionConfig extends RestrictionBaseConfig {
   code: string | string[];
   text?: string;
-  exemptions?: ExemptionConfig[];
-  condition?: ConditionConfig;
   retry_delay?: number;
   max_retries?: number;
   max_retries_delay?: number;
@@ -56,4 +55,21 @@ export interface ConditionConfig {
   operator: string;
   entity: string;
   attribute?: string;
+}
+
+export interface CardHelpers {
+  createRowElement(config: LovelaceCardConfig): LovelaceCard;
+  createCardElement(config: LovelaceCardConfig): LovelaceCard;
+  showConfirmationDialog?: (
+    element: HTMLElement,
+    options: { title: string; text?: string; confirmText?: string; dismissText?: string },
+  ) => Promise<boolean>;
+  showEnterCodeDialog?: (
+    element: Element,
+    options: { codeFormat: 'text' | 'number'; title: string; submitText: string },
+  ) => Promise<string | null>;
+}
+
+export interface WindowWithCardHelpers extends Window {
+  loadCardHelpers?: () => Promise<CardHelpers>;
 }

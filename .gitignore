@@ -1,3 +1,14 @@
 /node_modules/
 /.rpt2_cache/
 /dist
+homeassistant/
+.devcontainer/config/.storage/
+.devcontainer/config/tts/
+.devcontainer/config/*.db*
+.devcontainer/config/*.log*
+.devcontainer/config/.homeassistant/
+.devcontainer/config/custom_components/
+.devcontainer/config/.HA_VERSION
+.devcontainer/config/known_devices.yaml
+.devcontainer/config/.ha_run.lock
+.yarn/
