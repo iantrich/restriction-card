@@ -256,7 +256,15 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         .configValue=${'unlocked_icon'}
         @value-changed=${this._valueChanged}
       ></ha-icon-picker>
-    `;
+
+      <!-- Force generic dialog -->
+      <ha-formfield label="Force generic dialog">
+        <ha-switch
+          .checked=${this._config?.force_generic_dialog ?? false}
+          .configValue=${'force_generic_dialog'}
+          @change=${this._switchChanged}
+        ></ha-switch>
+      </ha-formfield>`;
   }
 
   private _renderRestrictionsSection(): TemplateResult {
