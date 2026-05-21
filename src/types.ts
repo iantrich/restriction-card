@@ -13,6 +13,7 @@ export interface RestrictionCardConfig extends LovelaceCardConfig {
   action?: string;
   locked_icon?: string;
   unlocked_icon?: string;
+  force_generic_dialog?: boolean;
   css_variables?: Record<string, string | number | null | undefined>;
 }
 
