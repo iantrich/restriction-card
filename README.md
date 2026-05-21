@@ -38,7 +38,8 @@ Use [HACS](https://hacs.xyz) or follow this [guide](https://github.com/thomaslov
 | action        | string  | **Optional** | Action type to trigger the unlock. Options are `tap`, `double_tap`, or `hold`. Default is `tap` |
 | locked_icon   | string  | **Optional** | Icon to show when locked. Default is `mdi:lock-outline`                                         |
 | unlocked_icon | string  | **Optional** | Icon to show when unlocked instead of fading the icon away                                      |
-| css_variables | map     | **Optional** | Set to override default theme variables. See [css_variables option](#css_variables-option)    |
+| css_variables | map     | **Optional** | Set to override default theme variables. See [css_variables option](#css_variables-option)      |
+| force_generic_dialog    | boolean      | **Optional** | Forcibly show a generic prompt popup dialog to input a pin                       |
 
 ## Restrictions options
 
@@ -327,7 +328,7 @@ restrictions:
 
 Notes:
 1. Numerical values with leading zeros may be mistreated. To avoid this, wrap values in quotes.
-2. Dependently on a presence of alpha-numeric pin codes (like `abcd`, `abcd1234`, `12 34`, `12.24`, `12,34`) in the `code` option, a particular "enter pin" dialog is shown: if all values are numerical - a numerical keypad is shown, otherwise - a simple input-box allowing to input any characters.
+2. Dependently on a presence of alpha-numeric pin codes (like `abcd`, `abcd1234`, `12 34`, `12.24`, `12,34`) in the `code` option, a particular "enter pin" dialog is shown: if all values are numerical - a numerical keypad is shown, otherwise - a simple input-box allowing to input any characters. If a `force_generic_dialog` is set to `true` - then a generic prompt dialog is shown in both described cases.
 
 
 ## Alterations by card-mod:
