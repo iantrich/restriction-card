@@ -209,7 +209,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   }
 
   private checkVisibilityChanged(hidden: boolean) {
-    const visibilityChanged = this._prevHidden != hidden;
+    const visibilityChanged = this._prevHidden !== hidden;
     if (visibilityChanged) {
       this._prevHidden = hidden;
       if (this._config!.row) {
