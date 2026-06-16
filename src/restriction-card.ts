@@ -212,7 +212,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     const visibilityChanged = this._prevHidden !== hidden;
     if (visibilityChanged) {
       this._prevHidden = hidden;
-      if (this._config!.row) {
+      if (this._config?.row) {
         fireEvent(this, 'row-visibility-changed', { row: this, value: !hidden });
       } else {
         this.toggleAttribute('hidden', hidden);
