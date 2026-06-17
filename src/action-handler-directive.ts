@@ -275,7 +275,7 @@ const getActionHandler = (): ActionHandler => {
 
   const div = document.createElement('div');
   div.className = 'action-handler-restriction-card';
-  div.style.position = 'absolute';
+  div.style.position = 'fixed';
   div.style.width = isTouch ? '100px' : '50px';
   div.style.height = isTouch ? '100px' : '50px';
   div.style.transform = 'translate(-50%, -50%) scale(0)';
