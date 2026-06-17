@@ -177,6 +177,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                     class=${classMap({
                       'icon-blocked': Boolean(isBlocked),
                       'icon-in-row': Boolean(this._config.row),
+                      'icon-unlocked': this._unlocked && Boolean(this._config.unlocked_icon),
                     })}
                   ></ha-icon>
                 </div>
@@ -507,17 +508,21 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
     this._unlocked = true;
     overlay.style.setProperty('pointer-events', 'none');
-    lock.classList.add('icon-hidden');
-    overlay.classList.add('unlocked');
-    overlay.classList.remove('locked');
+
+    if (!this._config.unlocked_icon) {
+      lock.classList.add('icon-hidden');
+      overlay.classList.add('unlocked');
+    }
 
     this._scheduleTimeout(
       () => {
         this._unlocked = false;
         overlay.style.setProperty('pointer-events', '');
-        lock.classList.remove('icon-hidden');
-        overlay.classList.remove('unlocked');
-        overlay.classList.add('locked');
+
+        if (!this._config?.unlocked_icon) {
+          lock.classList.remove('icon-hidden');
+          overlay.classList.remove('unlocked');
+        }
       },
       (this._config.duration ?? 5) * 1000,
     );
@@ -594,6 +599,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         transition:
           visibility 0s 2s,
           opacity 2s linear;
+        color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4)) !important;
+      }
+      .icon-unlocked {
         color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4)) !important;
       }
       .icon-blocked {
