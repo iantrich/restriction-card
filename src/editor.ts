@@ -109,11 +109,13 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
 
     return html`
       <p class="hint">Choose the card to protect with restriction logic.</p>
-      <ha-textfield
-        label="Card type (e.g. button, entities, custom:mushroom-entity-card)"
+      <ha-selector
+        .hass=${this.hass}
+        .selector=${{ text: {} }}
         .value=${cardType}
-        @input=${this._cardTypeChanged}
-      ></ha-textfield>
+        label="Card type (e.g. button, entities, custom:mushroom-entity-card)"
+        @value-changed=${this._cardTypeChanged}
+      ></ha-selector>
       ${cardType ? this._renderSubCardEditor(cardConfig!) : ''}
     `;
   }
@@ -179,6 +181,9 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         await Promise.race([customElements.whenDefined(tag), new Promise((resolve) => setTimeout(resolve, 5000))]);
       }
 
+      // The card type may have changed while we were waiting (e.g. user still typing).
+      if (this._cardEditorType !== type) return;
+
       if (!customElements.get(tag)) {
         this._cardEditorError = `No visual editor found for "${type}". Edit the card YAML directly in the code editor.`;
         return;
@@ -196,6 +201,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
 
       this._cardEditorElement = el;
     } catch (err) {
+      if (this._cardEditorType !== type) return;
       this._cardEditorError = `Failed to load editor for "${type}": ${err}`;
     }
   }
@@ -232,13 +238,14 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
       ></ha-selector>
 
       <!-- Row mode -->
-      <ha-formfield label="Row mode (entity row instead of card)">
-        <ha-switch
-          .checked=${this._config?.row ?? false}
-          .configValue=${'row'}
-          @change=${this._switchChanged}
-        ></ha-switch>
-      </ha-formfield>
+      <ha-selector
+        .hass=${this.hass}
+        .selector=${{ boolean: {} }}
+        .value=${this._config?.row ?? false}
+        label="Row mode (entity row instead of card)"
+        .configValue=${'row'}
+        @value-changed=${this._selectorChanged}
+      ></ha-selector>
 
       <!-- Icons -->
       <ha-icon-picker
@@ -294,12 +301,16 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
     const isOpen = this._openRestriction === key && enabled;
     return html`
       <div class="restriction-row">
-        <ha-formfield .label=${title}>
-          <ha-switch
-            .checked=${enabled}
-            @change=${(ev: Event) => this._toggleRestriction(key, (ev.target as HTMLInputElement).checked)}
-          ></ha-switch>
-        </ha-formfield>
+        <ha-selector
+          .hass=${this.hass}
+          .selector=${{ boolean: {} }}
+          .value=${enabled}
+          .label=${title}
+          @value-changed=${(ev: CustomEvent) => {
+            ev.stopPropagation();
+            this._toggleRestriction(key, Boolean(ev.detail.value));
+          }}
+        ></ha-selector>
         ${enabled
           ? html`
               <button
@@ -331,15 +342,17 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
 
   private _renderBlockFields(key: 'block', config: BlockRestrictionConfig): TemplateResult {
     return html`
-      <ha-textfield
-        label="Message shown when blocked (optional)"
+      <ha-selector
+        .hass=${this.hass}
+        .selector=${{ text: {} }}
         .value=${config.text ?? ''}
-        @input=${(ev: InputEvent) =>
+        label="Message shown when blocked (optional)"
+        @value-changed=${(ev: CustomEvent) =>
           this._updateRestriction(key, {
             ...config,
-            text: (ev.target as HTMLInputElement).value || undefined,
+            text: ev.detail.value || undefined,
           })}
-      ></ha-textfield>
+      ></ha-selector>
       ${this._renderConditionFields(config.condition, (cond) =>
         this._updateRestriction(key, { ...config, condition: cond || undefined }),
       )}
@@ -355,12 +368,14 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
     const codeText = Array.isArray(codeRaw) ? codeRaw.join('\n') : String(codeRaw);
 
     return html`
-      <ha-textfield
-        label="PIN code(s) — one per line for multiple codes"
+      <ha-selector
+        .hass=${this.hass}
+        .selector=${{ text: { multiline: true } }}
         .value=${codeText}
-        helper-text="Enter one or more valid PIN codes. Each line is a separate code."
-        @input=${(ev: InputEvent) => {
-          const raw = (ev.target as HTMLInputElement).value;
+        label="PIN code(s) — one per line for multiple codes"
+        helper="Enter one or more valid PIN codes. Each line is a separate code."
+        @value-changed=${(ev: CustomEvent) => {
+          const raw = String(ev.detail.value ?? '');
           const lines = raw
             .split('\n')
             .map((l) => l.trim())
@@ -368,17 +383,19 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
           const code = lines.length === 1 ? lines[0] : lines;
           this._updateRestriction(key, { ...config, code });
         }}
-      ></ha-textfield>
+      ></ha-selector>
 
-      <ha-textfield
-        label="Prompt text (optional)"
+      <ha-selector
+        .hass=${this.hass}
+        .selector=${{ text: {} }}
         .value=${config.text ?? ''}
-        @input=${(ev: InputEvent) =>
+        label="Prompt text (optional)"
+        @value-changed=${(ev: CustomEvent) =>
           this._updateRestriction(key, {
             ...config,
-            text: (ev.target as HTMLInputElement).value || undefined,
+            text: ev.detail.value || undefined,
           })}
-      ></ha-textfield>
+      ></ha-selector>
 
       <ha-selector
         .hass=${this.hass}
@@ -421,15 +438,17 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
 
   private _renderConfirmFields(key: 'confirm', config: ConfirmRestrictionConfig): TemplateResult {
     return html`
-      <ha-textfield
-        label="Confirm dialog text (optional)"
+      <ha-selector
+        .hass=${this.hass}
+        .selector=${{ text: {} }}
         .value=${config.text ?? ''}
-        @input=${(ev: InputEvent) =>
+        label="Confirm dialog text (optional)"
+        @value-changed=${(ev: CustomEvent) =>
           this._updateRestriction(key, {
             ...config,
-            text: (ev.target as HTMLInputElement).value || undefined,
+            text: ev.detail.value || undefined,
           })}
-      ></ha-textfield>
+      ></ha-selector>
       ${this._renderConditionFields(config.condition, (cond) =>
         this._updateRestriction(key, { ...config, condition: cond || undefined }),
       )}
@@ -474,24 +493,28 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
               @value-changed=${(ev: CustomEvent) =>
                 onChange({ ...this._emptyCondition(condition), operator: ev.detail.value })}
             ></ha-selector>
-            <ha-textfield
-              label="Value"
+            <ha-selector
+              .hass=${this.hass}
+              .selector=${{ text: {} }}
               .value=${condition?.value ?? ''}
-              @input=${(ev: InputEvent) =>
+              label="Value"
+              @value-changed=${(ev: CustomEvent) =>
                 onChange({
                   ...this._emptyCondition(condition),
-                  value: (ev.target as HTMLInputElement).value,
+                  value: String(ev.detail.value ?? ''),
                 })}
-            ></ha-textfield>
-            <ha-textfield
-              label="Attribute (optional)"
+            ></ha-selector>
+            <ha-selector
+              .hass=${this.hass}
+              .selector=${{ text: {} }}
               .value=${condition?.attribute ?? ''}
-              @input=${(ev: InputEvent) =>
+              label="Attribute (optional)"
+              @value-changed=${(ev: CustomEvent) =>
                 onChange({
                   ...this._emptyCondition(condition),
-                  attribute: (ev.target as HTMLInputElement).value || undefined,
+                  attribute: ev.detail.value || undefined,
                 })}
-            ></ha-textfield>
+            ></ha-selector>
           `
         : ''}
     `;
@@ -516,15 +539,17 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
       ${list.map(
         (ex, i) => html`
           <div class="exemption-row">
-            <ha-textfield
-              label="User ID ${i + 1}"
+            <ha-selector
+              .hass=${this.hass}
+              .selector=${{ text: {} }}
               .value=${ex.user}
-              @input=${(ev: InputEvent) => {
+              label="User ID ${i + 1}"
+              @value-changed=${(ev: CustomEvent) => {
                 const updated = [...list];
-                updated[i] = { user: (ev.target as HTMLInputElement).value };
+                updated[i] = { user: String(ev.detail.value ?? '') };
                 onChange(updated);
               }}
-            ></ha-textfield>
+            ></ha-selector>
             <ha-icon-button
               .label=${'Remove'}
               @click=${() => {
@@ -537,10 +562,10 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
           </div>
         `,
       )}
-      <mwc-button @click=${() => onChange([...list, { user: '' }])}>
-        <ha-icon icon="mdi:plus"></ha-icon>
+      <ha-button appearance="plain" @click=${() => onChange([...list, { user: '' }])}>
+        <ha-icon slot="start" icon="mdi:plus"></ha-icon>
         Add exemption
-      </mwc-button>
+      </ha-button>
     `;
   }
 
@@ -585,10 +610,10 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
   // -------------------------------------------------------------------------
 
   /** Called when the card type text field changes. */
-  private _cardTypeChanged(ev: InputEvent): void {
+  private _cardTypeChanged(ev: CustomEvent): void {
     ev.stopPropagation();
     if (!this._config) return;
-    const type = ((ev.target as HTMLInputElement).value ?? '').trim();
+    const type = String(ev.detail.value ?? '').trim();
     if (!type) {
       // Remove the card config entirely when type is cleared.
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -671,20 +696,13 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
     this._updateTop(configValue, ev.detail.value);
   }
 
-  /** ha-icon-picker / ha-textfield value-changed → scalar config key. */
+  /** ha-icon-picker value-changed → scalar config key. */
   private _valueChanged(ev: CustomEvent): void {
     ev.stopPropagation();
     const target = ev.target as any;
     const configValue = target.configValue as keyof RestrictionCardConfig;
     if (!configValue || !this._config) return;
     this._updateTop(configValue, ev.detail.value ?? (target as HTMLInputElement).value);
-  }
-
-  /** ha-switch change → boolean config key. */
-  private _switchChanged(ev: Event): void {
-    const target = ev.target as HTMLInputElement & { configValue?: keyof RestrictionCardConfig };
-    if (!target.configValue || !this._config) return;
-    this._updateTop(target.configValue, target.checked);
   }
 
   // -------------------------------------------------------------------------
@@ -694,17 +712,13 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
   static get styles() {
     return css`
       ha-selector,
-      ha-textfield,
-      ha-icon-picker,
-      ha-formfield,
-      mwc-button {
+      ha-icon-picker {
         display: block;
         margin-bottom: 12px;
       }
 
-      ha-formfield {
-        padding: 8px 0;
-        margin-bottom: 4px;
+      ha-button {
+        margin-bottom: 12px;
       }
 
       /* ── Top-level accordion ── */
@@ -767,7 +781,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         flex-wrap: wrap;
       }
 
-      .restriction-row ha-formfield {
+      .restriction-row ha-selector {
         flex: 1;
         margin-bottom: 0;
         padding: 0;
@@ -803,7 +817,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         margin-bottom: 8px;
       }
 
-      .exemption-row ha-textfield {
+      .exemption-row ha-selector {
         flex: 1;
         margin-bottom: 0;
       }

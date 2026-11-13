@@ -81,7 +81,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       throw new Error('Error in card configuration.');
     }
 
-    if (config.restrictions && config.restrictions.pin && !config.restrictions.pin.code) {
+    if (config.restrictions?.pin && RestrictionCard._normalizePinCodes(config.restrictions.pin.code).length === 0) {
       throw new Error('A pin code is required for pin restrictions');
     }
 
@@ -122,18 +122,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       return false;
     }
 
-    const entity = this._getConditionEntity();
-    if (entity) {
-      const changed = oldHass.states[entity] !== this._hass.states[entity];
-      return changed;
-    }
-
-    return false;
+    const hass = this._hass;
+    return this._getConditionEntities().some((entity) => oldHass.states[entity] !== hass.states[entity]);
   }
 
   protected render(): TemplateResult | void {
     if (!this._config || !this._hass || !this._config.card || !this._helpers) {
-      console.info('[RC] render() → bailing early (missing required state)');
       return html``;
     }
 
@@ -197,15 +191,25 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     this._timers = [];
   }
 
-  private _getConditionEntity(): string | undefined {
+  private _getConditionEntities(): string[] {
     const r = this._config?.restrictions;
-    return (
-      this._config?.condition?.entity ??
-      r?.block?.condition?.entity ??
-      r?.hide?.condition?.entity ??
-      r?.pin?.condition?.entity ??
-      r?.confirm?.condition?.entity
-    );
+    const entities = [
+      this._config?.condition?.entity,
+      r?.block?.condition?.entity,
+      r?.hide?.condition?.entity,
+      r?.pin?.condition?.entity,
+      r?.confirm?.condition?.entity,
+    ].filter((entity): entity is string => Boolean(entity));
+    return [...new Set(entities)];
+  }
+
+  /** Normalise the configured pin code(s) to a list of non-empty strings. */
+  private static _normalizePinCodes(code: unknown): string[] {
+    const codes = Array.isArray(code) ? code : [code];
+    return codes
+      .filter((c) => c !== undefined && c !== null)
+      .map((c) => String(c))
+      .filter((c) => c.length > 0);
   }
 
   private _buildCardElement(): void {
@@ -400,21 +404,13 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
 
       if (this._config.restrictions.pin && this._matchRestriction(this._config.restrictions.pin)) {
-        const isMultiplePins = Array.isArray(this._config.restrictions.pin.code);
-        let pin;
+        const validCodes = RestrictionCard._normalizePinCodes(this._config.restrictions.pin.code);
+        let pin: string | null;
         const titleDialog = this._config.restrictions.pin.text || 'Input pin code';
         if (this._helpers?.showEnterCodeDialog) {
-          const regex = /^\d+$/;
-          let codeFormat: 'number' | 'text';
-          if (!isMultiplePins) {
-            const asString = this._config.restrictions.pin.code as string;
-            codeFormat = regex.test(asString) ? 'number' : 'text';
-          } else {
-            const asArray = this._config.restrictions.pin.code as string[];
-            codeFormat = regex.test(asArray.join('')) ? 'number' : 'text';
-          }
+          const codeFormat = validCodes.every((c) => /^\d+$/.test(c)) ? 'number' : 'text';
           pin = await this._helpers.showEnterCodeDialog(lock, {
-            codeFormat: codeFormat,
+            codeFormat,
             title: titleDialog,
             submitText: 'OK',
           });
@@ -422,19 +418,12 @@ class RestrictionCard extends LitElement implements LovelaceCard {
           pin = prompt(titleDialog);
         }
 
-        let conditionString = false;
-        if (!isMultiplePins) conditionString = pin !== String(this._config.restrictions.pin.code);
+        // Dismissing the dialog is not a failed attempt
+        if (pin === null || pin === undefined) {
+          return;
+        }
 
-        let conditionArray = false;
-        if (isMultiplePins)
-          for (const pinElement of this._config.restrictions.pin.code) {
-            if (String(pinElement) === pin) {
-              conditionArray = false;
-              break;
-            } else conditionArray = true;
-          }
-
-        if (conditionString || conditionArray) {
+        if (!validCodes.includes(pin)) {
           lock.classList.add('icon-invalid');
           overlay.classList.add('overlay-invalid');
           this._delay = Boolean(this._config.restrictions.pin.retry_delay);
