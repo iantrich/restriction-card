@@ -147,6 +147,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
 
     const isBlocked = this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false;
+    // With an unlocked_icon configured, swap the icon and keep it visible while unlocked;
+    // otherwise fade the lock (and overlay outline) away.
+    const hasUnlockedIcon = Boolean(this._config.unlocked_icon);
+    const fadeOnUnlock = this._unlocked && !hasUnlockedIcon;
     return html`
       <div id="mainContainer" style=${ifDefined(styleMap(this._config.css_variables || {}))}>
         ${(this._config.exemptions &&
@@ -166,6 +170,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
                 id="overlay"
                 class=${classMap({
                   locked: !this._unlocked && !isBlocked,
+                  unlocked: fadeOnUnlock,
                   blocked: Boolean(isBlocked),
                   'has-row': Boolean(this._config.row),
                   'fill-available': true,
@@ -173,15 +178,13 @@ class RestrictionCard extends LitElement implements LovelaceCard {
               >
                 <div id="subContainer" class=${classMap({ 'fill-available': true })}>
                   <ha-icon
-                    icon=${this._unlocked
-                      ? this._config.unlocked_icon
-                        ? this._config.unlocked_icon
-                        : this._config.locked_icon
-                      : this._config.locked_icon}
+                    icon=${this._unlocked && hasUnlockedIcon ? this._config.unlocked_icon : this._config.locked_icon}
                     id="lock"
                     class=${classMap({
                       'icon-blocked': Boolean(isBlocked),
                       'icon-in-row': Boolean(this._config.row),
+                      'icon-hidden': fadeOnUnlock,
+                      'icon-unlocked': this._unlocked && hasUnlockedIcon,
                     })}
                   ></ha-icon>
                 </div>
@@ -520,17 +523,11 @@ class RestrictionCard extends LitElement implements LovelaceCard {
 
     this._unlocked = true;
     overlay.style.setProperty('pointer-events', 'none');
-    lock.classList.add('icon-hidden');
-    overlay.classList.add('unlocked');
-    overlay.classList.remove('locked');
 
     this._scheduleTimeout(
       () => {
         this._unlocked = false;
         overlay.style.setProperty('pointer-events', '');
-        lock.classList.remove('icon-hidden');
-        overlay.classList.remove('unlocked');
-        overlay.classList.add('locked');
       },
       (this._config.duration ?? 5) * 1000,
     );
@@ -607,6 +604,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
         transition:
           visibility 0s 2s,
           opacity 2s linear;
+        color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4)) !important;
+      }
+      .icon-unlocked {
         color: var(--restriction-success-lock-color, var(--primary-color, #03a9f4)) !important;
       }
       .icon-blocked {

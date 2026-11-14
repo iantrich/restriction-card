@@ -223,3 +223,84 @@ describe('restriction-card pin restriction', () => {
     expect(card._retries).toBe(0);
   });
 });
+
+const lockIcon = (card: PinTestCard): HTMLElement => card.shadowRoot!.getElementById('lock') as HTMLElement;
+const overlayEl = (card: PinTestCard): HTMLElement => card.shadowRoot!.getElementById('overlay') as HTMLElement;
+
+describe('restriction-card unlock rendering', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('swaps to unlocked_icon and keeps it visible while unlocked', async () => {
+    const card = await mountPinCard(
+      { ...pinConfig('1234'), locked_icon: 'mdi:bell-cancel', unlocked_icon: 'mdi:bell' },
+      '1234',
+    );
+    await card._handleRestriction();
+    await card.updateComplete;
+
+    const lock = lockIcon(card);
+    expect(lock.getAttribute('icon')).toBe('mdi:bell');
+    expect(lock.classList.contains('icon-hidden')).toBe(false);
+    expect(lock.classList.contains('icon-unlocked')).toBe(true);
+    expect(overlayEl(card).classList.contains('unlocked')).toBe(false);
+  });
+
+  it('fades the lock away when no unlocked_icon is configured', async () => {
+    const card = await mountPinCard({ ...pinConfig('1234'), locked_icon: 'mdi:lock' }, '1234');
+    await card._handleRestriction();
+    await card.updateComplete;
+
+    const lock = lockIcon(card);
+    expect(lock.getAttribute('icon')).toBe('mdi:lock');
+    expect(lock.classList.contains('icon-hidden')).toBe(true);
+    expect(overlayEl(card).classList.contains('unlocked')).toBe(true);
+  });
+
+  it('relocks after the duration', async () => {
+    vi.useFakeTimers();
+    try {
+      const card = await mountPinCard({ ...pinConfig('1234'), unlocked_icon: 'mdi:bell', duration: 1 }, '1234');
+      await card._handleRestriction();
+      vi.advanceTimersByTime(1000);
+      await card.updateComplete;
+
+      expect(card._unlocked).toBe(false);
+      expect(lockIcon(card).classList.contains('icon-unlocked')).toBe(false);
+      expect(overlayEl(card).classList.contains('locked')).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe('restriction-card hide restriction', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  const hideConfig = (): RestrictionCardConfig => ({
+    ...createBaseConfig(),
+    restrictions: { hide: { condition: { entity: 'binary_sensor.test', operator: '==', value: 'on' } } },
+  });
+
+  it('sets the hidden attribute and fires card-visibility-changed when hidden', async () => {
+    const card = document.createElement('restriction-card') as unknown as PinTestCard;
+    card.setConfig(hideConfig());
+    card._helpers = { createCardElement: () => document.createElement('div') };
+    const events: boolean[] = [];
+    card.addEventListener('card-visibility-changed', (e) => events.push((e as CustomEvent).detail.value));
+    card.hass = createHass('on');
+    document.body.appendChild(card);
+    await card.updateComplete;
+
+    expect(card.hasAttribute('hidden')).toBe(true);
+    expect(events).toEqual([false]);
+
+    card.hass = createHass('off');
+    await card.updateComplete;
+    expect(card.hasAttribute('hidden')).toBe(false);
+    expect(events).toEqual([false, true]);
+  });
+});

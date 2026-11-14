@@ -73,3 +73,11 @@ export interface CardHelpers {
 export interface WindowWithCardHelpers extends Window {
   loadCardHelpers?: () => Promise<CardHelpers>;
 }
+
+declare global {
+  // Visibility events understood by HA's card/row containers (used by the `hide` restriction).
+  interface HASSDomEvents {
+    'card-visibility-changed': { value: boolean };
+    'row-visibility-changed': { row: HTMLElement; value: boolean };
+  }
+}
