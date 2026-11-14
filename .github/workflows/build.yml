@@ -1,31 +1,32 @@
-name: "Build"
+name: 'Build'
 
 on:
   push:
-    branches: 
+    branches:
       - master
   pull_request:
-    branches: 
+    branches:
       - master
 
 jobs:
   build:
     name: Test build
     runs-on: ubuntu-latest
+    env:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: 0
     steps:
-      - uses: actions/checkout@v1
-      - name: Cache Dependencies
-        uses: actions/cache@v4
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - name: Install Dependencies
-        run: npm ci
+          node-version: '24'
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack prepare yarn@4.12.0 --activate
+          yarn install --immutable
+
       - name: Build
-        run: npm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: restriction-card.js
-          path: dist/restriction-card.js
+        run: yarn build
