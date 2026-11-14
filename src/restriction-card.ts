@@ -4,7 +4,14 @@ import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { RestrictionBaseConfig, RestrictionCardConfig, CardHelpers, WindowWithCardHelpers } from './types';
-import { HomeAssistant, LovelaceCard, LovelaceCardEditor, computeCardSize, evaluateFilter } from 'custom-card-helpers';
+import {
+  HomeAssistant,
+  LovelaceCard,
+  LovelaceCardEditor,
+  computeCardSize,
+  evaluateFilter,
+  fireEvent,
+} from 'custom-card-helpers';
 import { CARD_VERSION } from './const';
 import { actionHandler } from './action-handler-directive';
 
@@ -47,6 +54,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
   @state() private _helpers?: CardHelpers;
   private _cardElement?: LovelaceCard;
   @state() private _unlocked = false;
+  private _prevHidden = false;
   private _delay = false;
   private _maxed = false;
   private _retries = 0;
@@ -132,7 +140,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
 
     if (this._config.restrictions && this._matchRestriction(this._config.restrictions.hide)) {
+      this.checkVisibilityChanged(true);
       return html``;
+    } else {
+      this.checkVisibilityChanged(false);
     }
 
     const isBlocked = this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false;
@@ -189,6 +200,19 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       window.clearTimeout(id);
     }
     this._timers = [];
+  }
+
+  private checkVisibilityChanged(hidden: boolean) {
+    const visibilityChanged = this._prevHidden !== hidden;
+    if (visibilityChanged) {
+      this._prevHidden = hidden;
+      if (this._config?.row) {
+        fireEvent(this, 'row-visibility-changed', { row: this, value: !hidden });
+      } else {
+        this.toggleAttribute('hidden', hidden);
+        fireEvent(this, 'card-visibility-changed', { value: !hidden });
+      }
+    }
   }
 
   private _getConditionEntities(): string[] {
