@@ -578,6 +578,10 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
       #card {
         height: 100%;
+        /* Own stacking context: nothing inside the wrapped card (including a nested
+           restriction-card's overlay) can be painted above this card's overlay. */
+        position: relative;
+        z-index: 0;
       }
       #overlay:not(.unlocked) {
         overflow: hidden;
