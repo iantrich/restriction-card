@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Test build
+    name: Lint, test and build
     runs-on: ubuntu-latest
     env:
       COREPACK_ENABLE_DOWNLOAD_PROMPT: 0
@@ -28,5 +28,14 @@ jobs:
           corepack prepare yarn@4.12.0 --activate
           yarn install --immutable
 
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Test
+        run: yarn test
+
       - name: Build
-        run: yarn build
+        run: yarn rollup
