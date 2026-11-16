@@ -222,6 +222,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
           },
         }}
         .value=${this._config?.action ?? 'tap'}
+        .required=${false}
         label="Unlock trigger"
         .configValue=${'action'}
         @value-changed=${this._selectorChanged}
@@ -232,6 +233,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         .hass=${this.hass}
         .selector=${{ number: { min: 1, max: 600, step: 1, unit_of_measurement: 's', mode: 'box' } }}
         .value=${this._config?.duration ?? 5}
+        .required=${false}
         label="Unlock duration (seconds)"
         .configValue=${'duration'}
         @value-changed=${this._selectorChanged}
@@ -242,6 +244,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         .hass=${this.hass}
         .selector=${{ boolean: {} }}
         .value=${this._config?.row ?? false}
+        .required=${false}
         label="Row mode (entity row instead of card)"
         .configValue=${'row'}
         @value-changed=${this._selectorChanged}
@@ -305,6 +308,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
           .hass=${this.hass}
           .selector=${{ boolean: {} }}
           .value=${enabled}
+          .required=${false}
           .label=${title}
           @value-changed=${(ev: CustomEvent) => {
             ev.stopPropagation();
@@ -346,6 +350,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         .hass=${this.hass}
         .selector=${{ text: {} }}
         .value=${config.text ?? ''}
+        .required=${false}
         label="Message shown when blocked (optional)"
         @value-changed=${(ev: CustomEvent) =>
           this._updateRestriction(key, {
@@ -389,6 +394,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         .hass=${this.hass}
         .selector=${{ text: {} }}
         .value=${config.text ?? ''}
+        .required=${false}
         label="Prompt text (optional)"
         @value-changed=${(ev: CustomEvent) =>
           this._updateRestriction(key, {
@@ -401,6 +407,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         .hass=${this.hass}
         .selector=${{ number: { min: 0, max: 300, step: 1, unit_of_measurement: 's', mode: 'box' } }}
         .value=${config.retry_delay ?? 0}
+        .required=${false}
         label="Retry delay (seconds)"
         @value-changed=${(ev: CustomEvent) =>
           this._updateRestriction(key, { ...config, retry_delay: ev.detail.value || undefined })}
@@ -410,6 +417,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         .hass=${this.hass}
         .selector=${{ number: { min: 0, max: 100, step: 1, mode: 'box' } }}
         .value=${config.max_retries ?? 0}
+        .required=${false}
         label="Max retries (0 = unlimited)"
         @value-changed=${(ev: CustomEvent) =>
           this._updateRestriction(key, { ...config, max_retries: ev.detail.value || undefined })}
@@ -418,7 +426,8 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
       <ha-selector
         .hass=${this.hass}
         .selector=${{ number: { min: 0, max: 3600, step: 1, unit_of_measurement: 's', mode: 'box' } }}
-        .value=${config.max_retries_delay ?? 0}
+        .value=${config.max_retries_delay ?? 5}
+        .required=${false}
         label="Lockout duration after max retries (seconds)"
         @value-changed=${(ev: CustomEvent) =>
           this._updateRestriction(key, {
@@ -442,6 +451,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         .hass=${this.hass}
         .selector=${{ text: {} }}
         .value=${config.text ?? ''}
+        .required=${false}
         label="Confirm dialog text (optional)"
         @value-changed=${(ev: CustomEvent) =>
           this._updateRestriction(key, {
@@ -472,6 +482,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
         .hass=${this.hass}
         .selector=${{ entity: {} }}
         .value=${condition?.entity ?? ''}
+        .required=${false}
         label="Condition entity"
         @value-changed=${(ev: CustomEvent) => {
           if (!condition && !ev.detail.value) return;
@@ -489,6 +500,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
                 },
               }}
               .value=${condition?.operator ?? '=='}
+              .required=${false}
               label="Operator"
               @value-changed=${(ev: CustomEvent) =>
                 onChange({ ...this._emptyCondition(condition), operator: ev.detail.value })}
@@ -508,6 +520,7 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
               .hass=${this.hass}
               .selector=${{ text: {} }}
               .value=${condition?.attribute ?? ''}
+              .required=${false}
               label="Attribute (optional)"
               @value-changed=${(ev: CustomEvent) =>
                 onChange({

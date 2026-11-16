@@ -360,3 +360,47 @@ describe('restriction-card condition evaluation', () => {
     expect(card.shadowRoot?.getElementById('overlay')).toBeNull();
   });
 });
+
+describe('restriction-card confirm restriction', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  const mountConfirmCard = async (confirm: Record<string, unknown>) => {
+    const card = document.createElement('restriction-card') as unknown as PinTestCard;
+    card.setConfig({ ...createBaseConfig(), restrictions: { confirm } });
+    const showConfirmationDialog = vi.fn().mockResolvedValue(true);
+    card._helpers = { createCardElement: () => document.createElement('div'), showConfirmationDialog };
+    card.hass = {
+      ...createHass('on'),
+      // Mimic HA, whose generic action confirmation reads "...run action 'OK'?"
+      localize: (key: string, args?: Record<string, string>) =>
+        key === 'ui.panel.lovelace.cards.actions.action_confirmation'
+          ? `Are you sure you want to run action '${args?.action}'?`
+          : key === 'ui.dialogs.generic.default_confirmation_title'
+            ? 'Are you sure?'
+            : '',
+    } as unknown as HomeAssistant;
+    document.body.appendChild(card);
+    await card.updateComplete;
+    return { card, showConfirmationDialog };
+  };
+
+  it('asks to unlock by default instead of naming the OK button as an action', async () => {
+    const { card, showConfirmationDialog } = await mountConfirmCard({});
+    await card._handleRestriction();
+
+    expect(showConfirmationDialog).toHaveBeenCalledWith(
+      card,
+      expect.objectContaining({ title: 'Are you sure?', text: 'Are you sure you want to unlock?' }),
+    );
+    expect(card._unlocked).toBe(true);
+  });
+
+  it('uses the configured text when set', async () => {
+    const { card, showConfirmationDialog } = await mountConfirmCard({ text: 'Really?' });
+    await card._handleRestriction();
+
+    expect(showConfirmationDialog).toHaveBeenCalledWith(card, expect.objectContaining({ text: 'Really?' }));
+  });
+});
