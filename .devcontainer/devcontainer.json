@@ -32,7 +32,7 @@
     "DEVCONTAINER": "1",
     "HASS_USERNAME": "dev",
     "HASS_PASSWORD": "dev",
-    "LOVELACE_REMOTE_FILES": "http://localhost:5000/restriction-card.js"
+    "LOVELACE_REMOTE_FILES": "http://localhost:5050/restriction-card.js"
   },
 
   // Setup Home Assistant and install dependencies

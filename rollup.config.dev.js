@@ -25,10 +25,13 @@ export default {
     serve({
       contentBase: './dist',
       host: '0.0.0.0',
-      port: 5000,
-      allowCrossOrigin: true,
+      // 5000 is taken by AirPlay Receiver on macOS; override with DEV_PORT if needed
+      port: Number(process.env.DEV_PORT) || 5050,
       headers: {
         'Access-Control-Allow-Origin': '*',
+        // Lets an HTTPS Home Assistant page (e.g. Nabu Casa) load the card from localhost
+        'Access-Control-Allow-Private-Network': 'true',
+        'Access-Control-Allow-Headers': '*',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',

@@ -16,7 +16,7 @@ This directory contains the development container configuration for building and
 3. **Build the Card**
    ```bash
    yarn build      # Lint and build
-   yarn start      # Start dev server with hot reload (port 5000)
+   yarn start      # Start dev server with hot reload (port 5050, override with DEV_PORT)
    yarn lint       # Check code quality
    yarn rollup     # Production build
    ```
@@ -24,7 +24,7 @@ This directory contains the development container configuration for building and
 4. **Access Services**
    - **Dev Container**: Terminal in VS Code (automatic)
    - **Home Assistant**: http://localhost:8123 (user: dev/pass: dev)
-   - **Rollup Dev Server**: http://localhost:5000
+   - **Rollup Dev Server**: http://localhost:5050
 
 5. **Configure Home Assistant to Use Your Card**
    - In Home Assistant, go to Settings > Dashboards
@@ -57,7 +57,7 @@ The image includes the `container` helper used by the devcontainer lifecycle com
 yarn install
 
 # Development with hot reload
-yarn start              # Runs Rollup in watch mode on port 5000
+yarn start              # Runs Rollup in watch mode on port 5050
 
 # Quality checks
 yarn lint             # ESLint check
@@ -66,6 +66,20 @@ yarn build            # Full build pipeline (lint + rollup)
 # Production build
 yarn rollup           # Create optimized dist files
 ```
+
+### Testing Against a Real Home Assistant Instance
+
+You can try a local build on your own Home Assistant (including one reached over HTTPS, such as Nabu Casa) without publishing a release or changing its configuration:
+
+1. Run `yarn start` on the same machine as your browser. It serves `dist/restriction-card.js` on `http://127.0.0.1:5050`.
+2. Open Home Assistant on a page that isn't a dashboard (for example `/history`), so the installed card hasn't loaded yet.
+3. In the browser console, load the local build:
+   ```js
+   await import('http://127.0.0.1:5050/restriction-card.js');
+   ```
+4. Go to your dashboard using the sidebar (don't reload the page). The card only registers itself once, so the installed version is skipped and every card in this tab uses your build.
+
+Reloading the tab goes back to the installed version. Other devices aren't affected. If the browser asks whether the page may access devices on your local network, allow it; the dev server sends the `Access-Control-Allow-Private-Network` header Chrome needs for this.
 
 ### File Locations
 
@@ -83,8 +97,8 @@ ctrl+shift+p → "Remote: Rebuild Container"
 
 ### Port Already in Use
 ```bash
-# Find what's using port 5000 or 8123
-lsof -i :5000
+# Find what's using port 5050 or 8123
+lsof -i :5050
 lsof -i :8123
 ```
 

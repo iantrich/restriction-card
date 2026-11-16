@@ -1,5 +1,5 @@
 resources:
-  - url: http://127.0.0.1:5000/restriction-card.js
+  - url: http://127.0.0.1:5050/restriction-card.js
     type: module
 views:
   - cards:
