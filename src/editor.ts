@@ -315,19 +315,21 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
             this._toggleRestriction(key, Boolean(ev.detail.value));
           }}
         ></ha-selector>
-        ${enabled
-          ? html`
-              <button
-                type="button"
-                class="sub-accordion__header"
-                @click=${() => this._toggleRestrictionOpen(key)}
-                aria-expanded=${isOpen}
-              >
-                <span>${isOpen ? 'Hide settings' : 'Show settings'}</span>
-                <ha-icon icon=${isOpen ? 'mdi:chevron-up' : 'mdi:chevron-down'}></ha-icon>
-              </button>
-            `
-          : ''}
+        ${
+          enabled
+            ? html`
+                <button
+                  type="button"
+                  class="sub-accordion__header"
+                  @click=${() => this._toggleRestrictionOpen(key)}
+                  aria-expanded=${isOpen}
+                >
+                  <span>${isOpen ? 'Hide settings' : 'Show settings'}</span>
+                  <ha-icon icon=${isOpen ? 'mdi:chevron-up' : 'mdi:chevron-down'}></ha-icon>
+                </button>
+              `
+            : ''
+        }
       </div>
       ${enabled && isOpen ? html` <div class="sub-accordion__content">${renderFields(key, current)}</div> ` : ''}
     `;
@@ -489,47 +491,49 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
           onChange(ev.detail.value ? { ...this._emptyCondition(condition), entity: ev.detail.value } : null);
         }}
       ></ha-selector>
-      ${condition?.entity
-        ? html`
-            <ha-selector
-              .hass=${this.hass}
-              .selector=${{
-                select: {
-                  options: OPERATORS.map((o) => ({ value: o, label: o })),
-                  mode: 'dropdown',
-                },
-              }}
-              .value=${condition?.operator ?? '=='}
-              .required=${false}
-              label="Operator"
-              @value-changed=${(ev: CustomEvent) =>
-                onChange({ ...this._emptyCondition(condition), operator: ev.detail.value })}
-            ></ha-selector>
-            <ha-selector
-              .hass=${this.hass}
-              .selector=${{ text: {} }}
-              .value=${condition?.value ?? ''}
-              label="Value"
-              @value-changed=${(ev: CustomEvent) =>
-                onChange({
-                  ...this._emptyCondition(condition),
-                  value: String(ev.detail.value ?? ''),
-                })}
-            ></ha-selector>
-            <ha-selector
-              .hass=${this.hass}
-              .selector=${{ text: {} }}
-              .value=${condition?.attribute ?? ''}
-              .required=${false}
-              label="Attribute (optional)"
-              @value-changed=${(ev: CustomEvent) =>
-                onChange({
-                  ...this._emptyCondition(condition),
-                  attribute: ev.detail.value || undefined,
-                })}
-            ></ha-selector>
-          `
-        : ''}
+      ${
+        condition?.entity
+          ? html`
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{
+                  select: {
+                    options: OPERATORS.map((o) => ({ value: o, label: o })),
+                    mode: 'dropdown',
+                  },
+                }}
+                .value=${condition?.operator ?? '=='}
+                .required=${false}
+                label="Operator"
+                @value-changed=${(ev: CustomEvent) =>
+                  onChange({ ...this._emptyCondition(condition), operator: ev.detail.value })}
+              ></ha-selector>
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ text: {} }}
+                .value=${condition?.value ?? ''}
+                label="Value"
+                @value-changed=${(ev: CustomEvent) =>
+                  onChange({
+                    ...this._emptyCondition(condition),
+                    value: String(ev.detail.value ?? ''),
+                  })}
+              ></ha-selector>
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ text: {} }}
+                .value=${condition?.attribute ?? ''}
+                .required=${false}
+                label="Attribute (optional)"
+                @value-changed=${(ev: CustomEvent) =>
+                  onChange({
+                    ...this._emptyCondition(condition),
+                    attribute: ev.detail.value || undefined,
+                  })}
+              ></ha-selector>
+            `
+          : ''
+      }
     `;
   }
 
