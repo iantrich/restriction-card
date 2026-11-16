@@ -304,3 +304,59 @@ describe('restriction-card hide restriction', () => {
     expect(events).toEqual([false, true]);
   });
 });
+
+describe('restriction-card condition evaluation', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  const mountWithStates = async (
+    config: RestrictionCardConfig,
+    states: Record<string, { state: string; attributes?: Record<string, unknown> }>,
+  ): Promise<PinTestCard> => {
+    const card = document.createElement('restriction-card') as unknown as PinTestCard;
+    card.setConfig(config);
+    card._helpers = { createCardElement: () => document.createElement('div') };
+    card.hass = { states } as unknown as HomeAssistant;
+    document.body.appendChild(card);
+    await card.updateComplete;
+    return card;
+  };
+
+  const levelConfig = (): RestrictionCardConfig => ({
+    ...createBaseConfig(),
+    condition: { entity: 'input_number.level', operator: '>', value: '60' },
+  });
+
+  it('compares numeric states as numbers for the top-level condition', async () => {
+    const high = await mountWithStates(levelConfig(), { 'input_number.level': { state: '100.0' } });
+    expect(high.shadowRoot?.getElementById('overlay')).not.toBeNull();
+
+    const low = await mountWithStates(levelConfig(), { 'input_number.level': { state: '7.0' } });
+    expect(low.shadowRoot?.getElementById('overlay')).toBeNull();
+  });
+
+  it('matches a numeric attribute against a string value', async () => {
+    const card = await mountWithStates(
+      {
+        ...createBaseConfig(),
+        condition: { entity: 'input_number.level', attribute: 'max', operator: '==', value: '100' },
+      },
+      { 'input_number.level': { state: '50.0', attributes: { max: 100 } } },
+    );
+    expect(card.shadowRoot?.getElementById('overlay')).not.toBeNull();
+  });
+
+  it('still renders the wrapped card when a condition entity does not exist', async () => {
+    const card = await mountWithStates(
+      {
+        ...createBaseConfig(),
+        condition: { entity: 'sensor.does_not_exist', operator: '==', value: 'on' },
+        restrictions: { block: { condition: { entity: 'sensor.also_missing', operator: '==', value: 'on' } } },
+      },
+      {},
+    );
+    expect(card.shadowRoot?.getElementById('card')).not.toBeNull();
+    expect(card.shadowRoot?.getElementById('overlay')).toBeNull();
+  });
+});
