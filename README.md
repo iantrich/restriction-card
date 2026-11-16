@@ -352,6 +352,17 @@ card:
 ```
 In this example the `alarm-panel` card has a "Disarm" button with `z-index: 1` which makes it "not lockable".
 
+## Contributors
+
+Thanks to everyone who reported bugs, requested features, and tested the betas that shaped 2.0.0:
+
+- [ildar170975](https://github.com/ildar170975): `hide` spacing fix ([#195](https://github.com/iantrich/restriction-card/pull/195)), `css_variables`, docs, and reports [#183](https://github.com/iantrich/restriction-card/issues/183), [#184](https://github.com/iantrich/restriction-card/issues/184), [#187](https://github.com/iantrich/restriction-card/issues/187)
+- [maurizioandreotti60](https://github.com/maurizioandreotti60): rows disappearing in Sections views ([#201](https://github.com/iantrich/restriction-card/issues/201))
+- [brianravn](https://github.com/brianravn): scrollbar after a page refresh ([#200](https://github.com/iantrich/restriction-card/issues/200))
+- [cmptscpeacock](https://github.com/cmptscpeacock): keypad showing `undefined` on the first key press ([#181](https://github.com/iantrich/restriction-card/issues/181))
+- [schnillerman](https://github.com/schnillerman): feedback when a hold unlock triggers ([#158](https://github.com/iantrich/restriction-card/issues/158))
+- [LDprg](https://github.com/LDprg): visual editor for the wrapped card ([#108](https://github.com/iantrich/restriction-card/issues/108))
+
 
 ## [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
