@@ -1721,16 +1721,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"custom-card-helpers@npm:2.2.0":
-  version: 2.2.0
-  resolution: "custom-card-helpers@npm:2.2.0"
+"custom-card-helpers@npm:2.2.1":
+  version: 2.2.1
+  resolution: "custom-card-helpers@npm:2.2.1"
   dependencies:
     home-assistant-js-websocket: "npm:^9.6.0"
     intl-messageformat: "npm:^12.1.5"
     superstruct: "npm:^2.0.2"
   peerDependencies:
     lit: ">=3.0.0"
-  checksum: 10c0/7ac7196c208bf16cdd15b9f48fe5b1bbc823a843b5f4963336578e1b2d1fa4f5fc09bbbb4d151dd5132de182280edb84f46aab4b7c883746cc8c0e8738de8eba
+  checksum: 10c0/b31268f0de19ad328ad95f42a838f33d6f9655f78d75aab8333f39d3f343cb015e40a6391addd587d10126a66b65d86524a9c4c827e1046f78fee382f76e269a
   languageName: node
   linkType: hard
 
@@ -3925,7 +3925,7 @@ __metadata:
     "@types/jsdom": "npm:^28"
     "@typescript-eslint/eslint-plugin": "npm:^8.0.0"
     "@typescript-eslint/parser": "npm:^8.0.0"
-    custom-card-helpers: "npm:2.2.0"
+    custom-card-helpers: "npm:2.2.1"
     esbuild: "npm:^0.20.2"
     eslint: "npm:^9.39.1"
     eslint-config-prettier: "npm:^10.1.8"
