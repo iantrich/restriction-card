@@ -153,43 +153,45 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     const fadeOnUnlock = this._unlocked && !hasUnlockedIcon;
     return html`
       <div id="mainContainer" style=${ifDefined(styleMap(this._config.css_variables || {}))}>
-        ${(this._config.exemptions &&
-          this._config.exemptions.some((e) =>
-            this._hass && this._hass.user ? e.user === this._hass.user.id : false,
-          )) ||
-        (this._config.condition &&
-          !evaluateFilter(this._hass.states[this._config.condition.entity], this._config.condition))
-          ? ''
-          : html`
-              <div
-                @action=${this._handleAction}
-                .actionHandler=${actionHandler({
-                  hasHold: this._config.action === 'hold',
-                  hasDoubleClick: this._config.action === 'double_tap',
-                })}
-                id="overlay"
-                class=${classMap({
-                  locked: !this._unlocked && !isBlocked,
-                  unlocked: fadeOnUnlock,
-                  blocked: Boolean(isBlocked),
-                  'has-row': Boolean(this._config.row),
-                  'fill-available': true,
-                })}
-              >
-                <div id="subContainer" class=${classMap({ 'fill-available': true })}>
-                  <ha-icon
-                    icon=${this._unlocked && hasUnlockedIcon ? this._config.unlocked_icon : this._config.locked_icon}
-                    id="lock"
-                    class=${classMap({
-                      'icon-blocked': Boolean(isBlocked),
-                      'icon-in-row': Boolean(this._config.row),
-                      'icon-hidden': fadeOnUnlock,
-                      'icon-unlocked': this._unlocked && hasUnlockedIcon,
-                    })}
-                  ></ha-icon>
+        ${
+          (this._config.exemptions &&
+            this._config.exemptions.some((e) =>
+              this._hass && this._hass.user ? e.user === this._hass.user.id : false,
+            )) ||
+          (this._config.condition &&
+            !evaluateFilter(this._hass.states[this._config.condition.entity], this._config.condition))
+            ? ''
+            : html`
+                <div
+                  @action=${this._handleAction}
+                  .actionHandler=${actionHandler({
+                    hasHold: this._config.action === 'hold',
+                    hasDoubleClick: this._config.action === 'double_tap',
+                  })}
+                  id="overlay"
+                  class=${classMap({
+                    locked: !this._unlocked && !isBlocked,
+                    unlocked: fadeOnUnlock,
+                    blocked: Boolean(isBlocked),
+                    'has-row': Boolean(this._config.row),
+                    'fill-available': true,
+                  })}
+                >
+                  <div id="subContainer" class=${classMap({ 'fill-available': true })}>
+                    <ha-icon
+                      icon=${this._unlocked && hasUnlockedIcon ? this._config.unlocked_icon : this._config.locked_icon}
+                      id="lock"
+                      class=${classMap({
+                        'icon-blocked': Boolean(isBlocked),
+                        'icon-in-row': Boolean(this._config.row),
+                        'icon-hidden': fadeOnUnlock,
+                        'icon-unlocked': this._unlocked && hasUnlockedIcon,
+                      })}
+                    ></ha-icon>
+                  </div>
                 </div>
-              </div>
-            `}
+              `
+        }
         ${this.renderCard()}
       </div>
     `;
