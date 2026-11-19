@@ -65,7 +65,7 @@ Notes:
 
 | Name              | Type   | Requirement  | Description                                                                                                               |
 | ----------------- | ------ | ------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| code               | string/list  | **Required** | Pin code the user needs to enter to unlock. Could be a list of codes                                                                                |
+| code               | string/list  | **Required** | Pin code the user needs to enter to unlock. Could be a list of codes, and list items can be `user`/`code` maps to give a user their own code. See [Per-user pin codes example](#per-user-pin-codes-example) |
 | text              | string | **Optional** | Text to display in prompt dialog                                                                                          |
 | exemptions        | list   | **Optional** | List of exemption objects. See [Exemption options](#exemption-options)                                                   |
 | condition         | map    | **Optional** | Conditional object to make restriction active. See [Condition options](#condition-options)                               |
@@ -328,6 +328,32 @@ restrictions:
 Notes:
 1. Numerical values with leading zeros may be mistreated. To avoid this, wrap values in quotes.
 2. Dependently on a presence of alpha-numeric pin codes (like `abcd`, `abcd1234`, `12 34`, `12.24`, `12,34`) in the `code` option, a particular "enter pin" dialog is shown: if all values are numerical - a numerical keypad is shown, otherwise - a simple input-box allowing to input any characters.
+
+
+### Per-user pin codes example
+
+List items can be maps with a `user` (Home Assistant user id) and a `code` (a single code or a list). A per-user code only unlocks the card for that user. Plain codes in the same list still work for everyone.
+
+```
+...
+restrictions:
+  pin:
+    code:
+      - user: 0d9a8bc3b5a64e3e8b1d0e2f4a6c8e10
+        code: "1234"
+      - user: 7f6e5d4c3b2a41908f7e6d5c4b3a2910
+        code:
+          - "0000"
+          - abcd
+      - "9999" # shared code, any user
+    text: Enter your pin to unlock
+...
+```
+
+Notes:
+1. A user with no applicable code (no shared codes and no entry of their own) is blocked: the card shows the block restriction's locked style and the pin prompt never appears.
+2. Per-user codes can also be set in the visual editor under the PIN restriction ("Add per-user code"). User IDs are found under Settings → People → Users (with advanced mode on).
+3. Like all restrictions here, this is client-side: anyone who can view the dashboard config can read the codes.
 
 
 ## Alterations by card-mod:

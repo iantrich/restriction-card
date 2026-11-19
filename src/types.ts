@@ -38,8 +38,18 @@ export interface BlockRestrictionConfig extends RestrictionBaseConfig {
 
 export type HideRestrictionConfig = RestrictionBaseConfig;
 
+/** A single pin code. YAML may parse numeric codes as numbers. */
+export type PinCode = string | number;
+
+/** A pin code (or codes) that only the given Home Assistant user may enter. */
+export interface UserPinCode {
+  user: string;
+  code: PinCode | PinCode[];
+}
+
 export interface PinRestrictionConfig extends RestrictionBaseConfig {
-  code: string | string[];
+  /** Codes valid for everyone, and/or `{ user, code }` entries valid only for that user. */
+  code: PinCode | (PinCode | UserPinCode)[];
   text?: string;
   retry_delay?: number;
   max_retries?: number;

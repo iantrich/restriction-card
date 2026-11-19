@@ -7,11 +7,45 @@ import {
   ConditionConfig,
   ExemptionConfig,
   PinRestrictionConfig,
+  UserPinCode,
   ConfirmRestrictionConfig,
   BlockRestrictionConfig,
   HideRestrictionConfig,
   RestrictionBaseConfig,
 } from './types';
+
+// ---------------------------------------------------------------------------
+// Pin code helpers
+// ---------------------------------------------------------------------------
+
+const isUserPinCode = (entry: unknown): entry is UserPinCode =>
+  typeof entry === 'object' && entry !== null && !Array.isArray(entry);
+
+const toCodeList = (code: unknown): string[] =>
+  (Array.isArray(code) ? code : [code])
+    .filter((c) => c !== undefined && c !== null && typeof c !== 'object')
+    .map((c) => String(c))
+    .filter((c) => c.length > 0);
+
+const splitLines = (value: unknown): string[] =>
+  String(value ?? '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+/** Split the `code` option into shared codes and per-user entries. */
+const splitPinCodes = (code: PinRestrictionConfig['code'] | undefined): { shared: string[]; users: UserPinCode[] } => {
+  const entries = Array.isArray(code) ? code : [code];
+  return { shared: toCodeList(entries), users: entries.filter(isUserPinCode) };
+};
+
+/** Rebuild the `code` option, keeping the simplest YAML shape (a single string when possible). */
+const joinPinCodes = (shared: string[], users: UserPinCode[]): PinRestrictionConfig['code'] => {
+  if (users.length === 0) {
+    return shared.length === 1 ? shared[0] : shared.length ? shared : '';
+  }
+  return [...shared, ...users];
+};
 
 // ---------------------------------------------------------------------------
 // Types for sub-sections
@@ -370,27 +404,69 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
   }
 
   private _renderPinFields(key: 'pin', config: PinRestrictionConfig): TemplateResult {
-    // Normalise code to a newline-separated string for the textarea
-    const codeRaw = config.code ?? '';
-    const codeText = Array.isArray(codeRaw) ? codeRaw.join('\n') : String(codeRaw);
+    const { shared, users } = splitPinCodes(config.code);
+    const update = (nextShared: string[], nextUsers: UserPinCode[]) =>
+      this._updateRestriction(key, { ...config, code: joinPinCodes(nextShared, nextUsers) });
 
     return html`
       <ha-selector
         .hass=${this.hass}
         .selector=${{ text: { multiline: true } }}
-        .value=${codeText}
-        label="PIN code(s) — one per line for multiple codes"
-        helper="Enter one or more valid PIN codes. Each line is a separate code."
-        @value-changed=${(ev: CustomEvent) => {
-          const raw = String(ev.detail.value ?? '');
-          const lines = raw
-            .split('\n')
-            .map((l) => l.trim())
-            .filter(Boolean);
-          const code = lines.length === 1 ? lines[0] : lines;
-          this._updateRestriction(key, { ...config, code });
-        }}
+        .value=${shared.join('\n')}
+        .required=${users.length === 0}
+        label="Shared PIN code(s) — one per line"
+        helper="Codes any user can enter. Leave empty to only allow per-user codes."
+        @value-changed=${(ev: CustomEvent) => update(splitLines(ev.detail.value), users)}
       ></ha-selector>
+
+      <div class="subsection-label">Per-user codes (optional)</div>
+      ${users.map(
+        (entry, i) => html`
+          <div class="user-pin-row">
+            <div class="user-pin-fields">
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ text: {} }}
+                .value=${entry.user}
+                label="PIN user ID ${i + 1}"
+                @value-changed=${(ev: CustomEvent) => {
+                  const next = [...users];
+                  next[i] = { ...entry, user: String(ev.detail.value ?? '').trim() };
+                  update(shared, next);
+                }}
+              ></ha-selector>
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ text: { multiline: true } }}
+                .value=${toCodeList(entry.code).join('\n')}
+                label="PIN code(s) for user ${i + 1}"
+                helper="One per line. Only this user can enter these codes."
+                @value-changed=${(ev: CustomEvent) => {
+                  const codes = splitLines(ev.detail.value);
+                  const next = [...users];
+                  next[i] = { ...entry, code: codes.length === 1 ? codes[0] : codes };
+                  update(shared, next);
+                }}
+              ></ha-selector>
+            </div>
+            <ha-icon-button
+              .label=${'Remove'}
+              @click=${() =>
+                update(
+                  shared,
+                  users.filter((_, idx) => idx !== i),
+                )}
+            >
+              <ha-icon icon="mdi:delete"></ha-icon>
+            </ha-icon-button>
+          </div>
+        `,
+      )}
+      <ha-button appearance="plain" @click=${() => update(shared, [...users, { user: '', code: '' }])}>
+        <ha-icon slot="start" icon="mdi:plus"></ha-icon>
+        Add per-user code
+      </ha-button>
+      <p class="hint">Users with no per-user code are blocked when there are no shared codes.</p>
 
       <ha-selector
         .hass=${this.hass}
@@ -836,6 +912,25 @@ export class RestrictionCardEditor extends LitElement implements LovelaceCardEdi
 
       .exemption-row ha-selector {
         flex: 1;
+        margin-bottom: 0;
+      }
+
+      .user-pin-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 8px;
+        padding: 8px;
+        border: 1px solid var(--divider-color);
+        border-radius: 8px;
+      }
+
+      .user-pin-fields {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .user-pin-fields ha-selector:last-child {
         margin-bottom: 0;
       }
 

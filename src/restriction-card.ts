@@ -3,7 +3,14 @@ import { property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import { RestrictionBaseConfig, RestrictionCardConfig, CardHelpers, WindowWithCardHelpers } from './types';
+import {
+  RestrictionBaseConfig,
+  RestrictionCardConfig,
+  CardHelpers,
+  WindowWithCardHelpers,
+  PinRestrictionConfig,
+  UserPinCode,
+} from './types';
 import {
   HomeAssistant,
   LovelaceCard,
@@ -89,8 +96,8 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       throw new Error('Error in card configuration.');
     }
 
-    if (config.restrictions?.pin && RestrictionCard._normalizePinCodes(config.restrictions.pin.code).length === 0) {
-      throw new Error('A pin code is required for pin restrictions');
+    if (config.restrictions?.pin) {
+      RestrictionCard._validatePinCodes(config.restrictions.pin.code);
     }
 
     const legacyDelay = (config as { delay?: unknown }).delay;
@@ -146,7 +153,9 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       this.checkVisibilityChanged(false);
     }
 
-    const isBlocked = this._config.restrictions ? this._matchRestriction(this._config.restrictions.block) : false;
+    const isBlocked = this._config.restrictions
+      ? this._matchRestriction(this._config.restrictions.block) || this._isPinBlocked()
+      : false;
     // With an unlocked_icon configured, swap the icon and keep it visible while unlocked;
     // otherwise fade the lock (and overlay outline) away.
     const hasUnlockedIcon = Boolean(this._config.unlocked_icon);
@@ -232,13 +241,48 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     return [...new Set(entities)];
   }
 
-  /** Normalise the configured pin code(s) to a list of non-empty strings. */
+  /** Normalise plain pin code(s) to a list of non-empty strings. */
   private static _normalizePinCodes(code: unknown): string[] {
     const codes = Array.isArray(code) ? code : [code];
     return codes
-      .filter((c) => c !== undefined && c !== null)
+      .filter((c) => c !== undefined && c !== null && typeof c !== 'object')
       .map((c) => String(c))
       .filter((c) => c.length > 0);
+  }
+
+  private static _isUserPinCode(entry: unknown): entry is UserPinCode {
+    return typeof entry === 'object' && entry !== null && !Array.isArray(entry);
+  }
+
+  /** Throw an actionable error if the pin `code` option is empty or has malformed per-user entries. */
+  private static _validatePinCodes(code: PinRestrictionConfig['code']): void {
+    const entries = Array.isArray(code) ? code : [code];
+    let total = RestrictionCard._normalizePinCodes(entries).length;
+    for (const entry of entries) {
+      if (!RestrictionCard._isUserPinCode(entry)) {
+        continue;
+      }
+      if (!entry.user) {
+        throw new Error('Each per-user pin code needs a user');
+      }
+      const userCodes = RestrictionCard._normalizePinCodes(entry.code);
+      if (userCodes.length === 0) {
+        throw new Error(`A pin code is required for user ${entry.user}`);
+      }
+      total += userCodes.length;
+    }
+    if (total === 0) {
+      throw new Error('A pin code is required for pin restrictions');
+    }
+  }
+
+  /** Codes the given user may enter: shared codes plus any `{ user, code }` entries for that user. */
+  private static _pinCodesForUser(code: PinRestrictionConfig['code'], userId: string | undefined): string[] {
+    const entries = Array.isArray(code) ? code : [code];
+    const userCodes = entries
+      .filter((e): e is UserPinCode => RestrictionCard._isUserPinCode(e) && userId !== undefined && e.user === userId)
+      .flatMap((e) => RestrictionCard._normalizePinCodes(e.code));
+    return [...RestrictionCard._normalizePinCodes(entries), ...userCodes];
   }
 
   private _buildCardElement(): void {
@@ -393,6 +437,15 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     );
   }
 
+  /** True when a pin restriction applies but no code (shared or per-user) is valid for the current user. */
+  private _isPinBlocked(): boolean {
+    const pin = this._config?.restrictions?.pin;
+    if (!pin || !this._matchRestriction(pin)) {
+      return false;
+    }
+    return RestrictionCard._pinCodesForUser(pin.code, this._hass?.user?.id).length === 0;
+  }
+
   private _handleAction(ev: CustomEvent<{ action: string }>): void {
     if (this._config?.action === ev.detail.action) {
       this._handleRestriction();
@@ -412,8 +465,11 @@ class RestrictionCard extends LitElement implements LovelaceCard {
     }
 
     if (this._config.restrictions) {
-      if (this._config.restrictions.block && this._matchRestriction(this._config.restrictions.block)) {
-        if (this._config.restrictions.block.text) {
+      const blockMatched = Boolean(
+        this._config.restrictions.block && this._matchRestriction(this._config.restrictions.block),
+      );
+      if (blockMatched || this._isPinBlocked()) {
+        if (blockMatched && this._config.restrictions.block?.text) {
           this.dispatchEvent(
             new CustomEvent('hass-notification', {
               bubbles: true,
@@ -433,7 +489,7 @@ class RestrictionCard extends LitElement implements LovelaceCard {
       }
 
       if (this._config.restrictions.pin && this._matchRestriction(this._config.restrictions.pin)) {
-        const validCodes = RestrictionCard._normalizePinCodes(this._config.restrictions.pin.code);
+        const validCodes = RestrictionCard._pinCodesForUser(this._config.restrictions.pin.code, this._hass?.user?.id);
         let pin: string | null;
         const titleDialog = this._config.restrictions.pin.text || 'Input pin code';
         if (this._helpers?.showEnterCodeDialog) {
