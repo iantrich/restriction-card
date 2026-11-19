@@ -173,7 +173,11 @@ const pinConfig = (code: string | string[], extra: Record<string, unknown> = {})
   restrictions: { pin: { code, ...extra } },
 });
 
-const mountPinCard = async (config: RestrictionCardConfig, enteredPin: string | null): Promise<PinTestCard> => {
+const mountPinCard = async (
+  config: RestrictionCardConfig,
+  enteredPin: string | null,
+  userId?: string,
+): Promise<PinTestCard> => {
   const card = document.createElement('restriction-card') as unknown as PinTestCard;
   card.setConfig(config);
   card._helpers = {
@@ -181,7 +185,7 @@ const mountPinCard = async (config: RestrictionCardConfig, enteredPin: string | 
     createRowElement: () => document.createElement('div'),
     showEnterCodeDialog: vi.fn().mockResolvedValue(enteredPin),
   };
-  card.hass = createHass('on');
+  card.hass = { ...createHass('on'), user: userId ? { id: userId } : undefined } as unknown as HomeAssistant;
   document.body.appendChild(card);
   await card.updateComplete;
   return card;
@@ -214,6 +218,70 @@ describe('restriction-card pin restriction', () => {
     await card._handleRestriction();
     expect(card._unlocked).toBe(false);
     expect(card._retries).toBe(1);
+  });
+
+  describe('per-user codes', () => {
+    const perUser = (extra: Record<string, unknown> = {}): RestrictionCardConfig =>
+      pinConfig(
+        [
+          { user: 'alice', code: '1111' },
+          { user: 'bob', code: ['2222', 3333] },
+        ] as unknown as string[],
+        extra,
+      );
+
+    it('unlocks a user with their own code', async () => {
+      const card = await mountPinCard(perUser(), '1111', 'alice');
+      await card._handleRestriction();
+      expect(card._unlocked).toBe(true);
+    });
+
+    it('accepts any of a user’s listed codes, including numeric ones', async () => {
+      const card = await mountPinCard(perUser(), '3333', 'bob');
+      await card._handleRestriction();
+      expect(card._unlocked).toBe(true);
+    });
+
+    it('rejects another user’s code', async () => {
+      const card = await mountPinCard(perUser({ max_retries: 3 }), '2222', 'alice');
+      await card._handleRestriction();
+      expect(card._unlocked).toBe(false);
+      expect(card._retries).toBe(1);
+    });
+
+    it('still accepts shared codes alongside per-user codes', async () => {
+      const config = pinConfig(['0000', { user: 'alice', code: '1111' }] as unknown as string[]);
+      const card = await mountPinCard(config, '0000', 'carol');
+      await card._handleRestriction();
+      expect(card._unlocked).toBe(true);
+    });
+
+    it('renders the card as blocked for a user with no applicable code', async () => {
+      const card = await mountPinCard(perUser(), null, 'carol');
+      expect(card.shadowRoot!.getElementById('overlay')!.classList.contains('blocked')).toBe(true);
+      expect(card.shadowRoot!.getElementById('lock')!.classList.contains('icon-blocked')).toBe(true);
+    });
+
+    it('renders the card as locked (not blocked) for a listed user', async () => {
+      const card = await mountPinCard(perUser(), null, 'alice');
+      expect(card.shadowRoot!.getElementById('overlay')!.classList.contains('blocked')).toBe(false);
+    });
+
+    it('does not prompt a user who has no applicable code', async () => {
+      const card = await mountPinCard(perUser(), '1111', 'carol');
+      const dialog = (card._helpers as { showEnterCodeDialog: ReturnType<typeof vi.fn> }).showEnterCodeDialog;
+      await card._handleRestriction();
+      expect(dialog).not.toHaveBeenCalled();
+      expect(card._unlocked).toBe(false);
+    });
+
+    it.each([
+      [[{ code: '1111' }], 'needs a user'],
+      [[{ user: 'alice', code: '' }], 'required for user alice'],
+    ])('rejects malformed per-user entry %j', (code, message) => {
+      const card = document.createElement('restriction-card') as unknown as PinTestCard;
+      expect(() => card.setConfig(pinConfig(code as unknown as string[]))).toThrow(message);
+    });
   });
 
   it('does not count a dismissed dialog as a failed attempt', async () => {
